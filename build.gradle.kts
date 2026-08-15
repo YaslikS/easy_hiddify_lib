@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.androidLibrary)
+    id("com.android.library")
     `maven-publish`
 }
 
@@ -44,7 +44,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
+    implementation("androidx.core:core-ktx:1.12.0")
 
     api(files("libs/hiddify-core.aar"))
 }
