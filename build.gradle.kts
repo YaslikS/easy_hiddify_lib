@@ -1,14 +1,22 @@
 plugins {
-    id("com.android.library") version "8.7.3"
-    id("org.jetbrains.kotlin.android") version "2.0.0"
+    id("com.android.library")
     `maven-publish`
 }
 
+val extractedDir = file("${layout.buildDirectory.get().asFile}/extracted-hiddify-core")
+val aarFile = file("libs/hiddify-core.aar")
+
+if (!file("$extractedDir/classes.jar").exists() && aarFile.exists()) {
+    copy {
+        from(zipTree(aarFile))
+        into(extractedDir)
+    }
+}
+
 val extractAar = tasks.register<Copy>("extractHiddifyCore") {
-    val aar = file("libs/hiddify-core.aar")
-    if (aar.exists()) {
-        from(zipTree(aar))
-        into(layout.buildDirectory.dir("extracted-hiddify-core"))
+    if (aarFile.exists()) {
+        from(zipTree(aarFile))
+        into(extractedDir)
     }
 }
 
@@ -38,7 +46,7 @@ android {
 
     sourceSets {
         getByName("main") {
-            jniLibs.srcDir(layout.buildDirectory.dir("extracted-hiddify-core/jni"))
+            jniLibs.srcDir(file("$extractedDir/jni"))
         }
     }
 
@@ -63,7 +71,9 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
 
-    api(files(layout.buildDirectory.file("extracted-hiddify-core/classes.jar")))
+    api(files("$extractedDir/classes.jar") {
+        builtBy(extractAar)
+    })
 }
 
 afterEvaluate {
