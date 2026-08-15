@@ -1,0 +1,1559 @@
+package com.yasliks.easy_hiddify_vpn
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.yasliks.easy_hiddify_vpn.ui.components.BottomNavItems
+import com.yasliks.easy_hiddify_vpn.ui.screens.AppsScreen
+import com.yasliks.easy_hiddify_vpn.ui.screens.MainScreen
+import com.yasliks.easy_hiddify_vpn.vm.AppsViewModel
+import com.yasliks.hiddify_library_lib.EasyHiddify
+import dagger.hilt.android.AndroidEntryPoint
+
+
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+
+    private val hiddify get() = EasyHiddify.instance
+
+    private val appsViewModel: AppsViewModel by viewModels()
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            MaterialTheme {
+                var currentPage by remember {
+                    mutableStateOf(BottomNavItems.MainBottomItem.route)
+                }
+
+                val bottomItems = listOf(
+                    BottomNavItems.MainBottomItem,
+                    BottomNavItems.ApplicationsBottomItem,
+                )
+
+                Scaffold(
+                    bottomBar = {
+                        NavigationBar {
+                            bottomItems.forEachIndexed { _, screen ->
+                                NavigationBarItem(
+                                    selected = currentPage == screen.route,
+                                    onClick = {
+                                        currentPage = screen.route
+                                    },
+                                    icon = {
+                                        Icon(
+                                            screen.icon,
+                                            contentDescription = null,
+                                        )
+                                    },
+                                    label = {
+                                        Text(
+                                            text = stringResource(screen.stringId),
+                                        )
+                                    },
+                                )
+                            }
+                        }
+                    },
+                ) { paddingValues ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                    ) {
+                        when (currentPage) {
+                            BottomNavItems.MainBottomItem.route -> {
+                                MainScreen(
+                                    appsViewModel = appsViewModel,
+                                    hiddify = hiddify,
+                                )
+                            }
+
+                            BottomNavItems.ApplicationsBottomItem.route -> {
+                                AppsScreen(
+                                    appsViewModel = appsViewModel,
+                                    hiddify = hiddify,
+                                )
+                            }
+
+                            else -> {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+package com.yasliks.easy_hiddify_vpn.ui.screens
+
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.net.VpnService
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yasliks.easy_hiddify_vpn.BuildConfig
+import com.yasliks.easy_hiddify_vpn.vm.AppsViewModel
+import com.yasliks.hiddify_library_lib.EasyHiddify
+import com.yasliks.hiddify_library_lib.extension.formatTraffic
+import kotlinx.collections.immutable.persistentListOf
+
+@Composable
+fun MainScreen(
+    appsViewModel: AppsViewModel,
+    hiddify: EasyHiddify,
+) {
+    val context = LocalContext.current
+
+    var pendingConfig by remember { mutableStateOf<String?>(null) }
+    val listState = rememberLazyListState()
+
+    val isConnected by hiddify.state.connected.collectAsState()
+    val status by hiddify.state.status.collectAsState()
+    val logs by hiddify.logger.logs.collectAsState()
+    val selectedApps by appsViewModel.selectedApps.collectAsState(
+        initial = persistentListOf(),
+    )
+
+    // Start VPN
+    val startHiddify = {
+        pendingConfig?.let {
+            hiddify.startVpn(
+                configStr = it,
+                serverName = "Name",
+                appsList = selectedApps,
+                isEnabledApps = true,
+            )
+        }
+    }
+
+    // Launcher VPN
+    val vpnPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            startHiddify()
+        }
+    }
+
+    // Check VPN permission
+    val checkVpnPermissionAndStart = {
+        val intent = VpnService.prepare(context)
+        if (intent != null) {
+            vpnPermissionLauncher.launch(intent)
+        } else {
+            startHiddify()
+        }
+    }
+
+    // Check notification permission
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { _ ->
+        checkVpnPermissionAndStart()
+    }
+
+    // Main entry point
+    val handleStartClick = { config: String ->
+        pendingConfig = config
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                /* context = */ context,
+                /* permission = */ Manifest.permission.POST_NOTIFICATIONS,
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!hasPermission) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                checkVpnPermissionAndStart()
+            }
+        } else {
+            checkVpnPermissionAndStart()
+        }
+    }
+
+    LaunchedEffect(logs.size) {
+        if (logs.isNotEmpty()) {
+            listState.scrollToItem(logs.size - 1)
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize()
+    ) {
+        Text(
+            text = "Hiddify Lib Test App",
+            style = MaterialTheme.typography.headlineMedium,
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .background(if (isConnected) Color.Green else Color.Red)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(if (isConnected) "CONNECTED" else "DISCONNECTED")
+        }
+
+        status?.let {
+            Text(
+                "Down: ${it.downlinkTotal.formatTraffic()} | Up: ${it.uplinkTotal.formatTraffic()}",
+                fontSize = 12.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = appsViewModel.config,
+            onValueChange = {
+                appsViewModel.changeConfig(it)
+            },
+            label = { Text("Config (VLESS/SS/JSON)") },
+            modifier = Modifier.fillMaxWidth(),
+            maxLines = 4
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    handleStartClick(appsViewModel.config)
+                },
+                enabled = !isConnected,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+            ) { Text("START", fontSize = 10.sp) }
+
+            Button(
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    hiddify.stopVpn()
+                },
+                enabled = isConnected,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+            ) { Text("STOP", fontSize = 10.sp) }
+
+            if (BuildConfig.DEBUG) {
+                Button(
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        appsViewModel.changeConfig(BuildConfig.vless_serv)
+                    },
+                    enabled = !isConnected,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                ) { Text("VLESS", fontSize = 10.sp) }
+
+                Button(
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        appsViewModel.changeConfig(BuildConfig.ss_serv)
+                    },
+                    enabled = !isConnected,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                ) { Text("SS", fontSize = 10.sp) }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("Logs:", style = MaterialTheme.typography.titleMedium)
+
+        Surface(
+            modifier = Modifier.fillMaxSize().weight(1f),
+            color = Color.Black,
+            shape = MaterialTheme.shapes.small
+        ) {
+            LazyColumn(contentPadding = PaddingValues(8.dp)) {
+                items(
+                    items = logs,
+                    key = { it.id },
+                ) { entry ->
+                    Text(
+                        text = entry.message,
+                        color = when (entry.level) {
+                            4 -> Color.Red
+                            3 -> Color.Yellow
+                            else -> Color.LightGray
+                        },
+                        fontSize = 10.sp,
+                        fontFamily = FontFamily.Monospace
+                    )
+                }
+            }
+        }
+    }
+}
+
+package com.yasliks.hiddify_library_lib.core
+
+import android.content.Context
+import com.hiddify.core.libbox.*
+import com.yasliks.hiddify_library_lib.EasyHiddify
+
+class HiddifyClientHandler(
+    private val context: Context,
+) : CommandClientHandler {
+
+    private val sdk get() = EasyHiddify.instance
+
+    override fun connected() {
+        sdk.logger.append(2, "[CORE CLIENT] Core connected successfully")
+        sdk.state.updateConnected(true)
+    }
+
+    override fun disconnected(message: String?) {
+        sdk.logger.append(3, "[CORE CLIENT] Core disconnected: ${message ?: "No reason provided"}")
+        sdk.state.updateConnected(false)
+    }
+
+    override fun writeLogs(messageList: LogIterator) {
+        sdk.logger.append(messageList)
+    }
+
+    override fun writeStatus(message: StatusMessage) {
+        sdk.state.updateStatus(message)
+    }
+
+    override fun writeGroups(message: OutboundGroupIterator) {
+        val groups = mutableListOf<OutboundGroup>()
+        while (message.hasNext()) {
+            groups.add(message.next())
+        }
+        sdk.state.updateGroups(groups)
+    }
+
+    override fun writeConnectionEvents(events: ConnectionEvents) {
+
+    }
+
+    override fun initializeClashMode(modeList: StringIterator, currentMode: String) {}
+
+    override fun updateClashMode(newMode: String) {}
+
+    override fun setDefaultLogLevel(level: Int) {}
+
+    override fun clearLogs() {
+        sdk.logger.clear()
+    }
+}
+
+package com.yasliks.hiddify_library_lib.core
+
+import android.content.Context
+import android.util.Log
+import com.hiddify.core.libbox.CommandServerHandler
+import com.hiddify.core.libbox.SystemProxyStatus
+import com.yasliks.easy_hiddify_lib.R
+import com.yasliks.hiddify_library_lib.EasyHiddify
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
+
+class HiddifyCommandHandler(
+    private val context: Context,
+) : CommandServerHandler {
+
+    private val sdk get() = EasyHiddify.instance
+
+    override fun getSystemProxyStatus(): SystemProxyStatus {
+        return SystemProxyStatus().apply {
+            available = false
+            enabled = false
+        }
+    }
+
+    override fun serviceReload() {
+        sdk.logger.append(
+            level = 2,
+            message = context.getString(R.string.core_requested_service_reload),
+        )
+    }
+
+    override fun serviceStop() {
+        sdk.logger.append(
+            level = 2,
+            message = context.getString(R.string.core_requested_service_stop),
+        )
+    }
+
+    override fun setSystemProxyEnabled(enabled: Boolean) {
+
+    }
+
+    override fun writeDebugMessage(message: String) {
+        Log.e(HiddifyPrefs.CORE, message)
+        sdk.logger.append(
+            level = 1,
+            message = context.getString(R.string.core_debug, message),
+        )
+    }
+}
+
+package com.yasliks.hiddify_library_lib.core
+
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.IpPrefix
+import android.net.VpnService
+import android.os.Build
+import android.os.Process
+import android.util.Log
+import androidx.annotation.RequiresApi
+import com.hiddify.core.libbox.*
+import com.yasliks.easy_hiddify_lib.R
+import com.yasliks.hiddify_library_lib.EasyHiddify
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
+import java.net.InetAddress
+import java.net.InetSocketAddress
+
+class HiddifyPlatform(
+    private val service: VpnService,
+    private val isEnabledApps: Boolean = false,
+    private val appsList: List<String> = emptyList(),
+) : PlatformInterface {
+
+    private val sdk get() = EasyHiddify.instance
+
+    override fun openTun(options: TunOptions): Int {
+        val mtu = if (options.mtu > 0) options.mtu else HiddifyPrefs.BASE_MTU
+        sdk.logger.append(2, "[PLATFORM] openTun called from core. MTU: $mtu, AutoRoute: ${options.autoRoute}")
+
+        val builder = service.Builder()
+        if (!isEnabledApps || appsList.isEmpty()) {
+            try {
+                // Exclude the application itself (and all its processes, including :vpn) from the tunnel
+                builder.addDisallowedApplication(service.packageName)
+                sdk.logger.append(2, "[PLATFORM] Disallowed self package from VPN: ${service.packageName}")
+            } catch (e: Exception) {
+                val err = service.getString(R.string.failed_to_disallow, e.message ?: "")
+                Log.e(HiddifyPrefs.HIDDIFY, err)
+                sdk.logger.append(3, "[PLATFORM WARNING] $err")
+            }
+        }
+
+        builder.setSession(HiddifyPrefs.HIDDIFY_SMALL)
+        builder.setMtu(if (options.mtu > 0) options.mtu else HiddifyPrefs.BASE_MTU)
+
+        // Setting up IP addresses
+        val inet4 = options.inet4Address
+        while (inet4.hasNext()) {
+            val addr = inet4.next()
+            builder.addAddress(addr.address(), addr.prefix())
+            sdk.logger.append(2, "[PLATFORM] IPv4 added: ${addr.address()}/${addr.prefix()}")
+        }
+
+        val inet6 = options.inet6Address
+        while (inet6.hasNext()) {
+            val addr = inet6.next()
+            builder.addAddress(addr.address(), addr.prefix())
+            sdk.logger.append(2, "[PLATFORM] IPv6 added: ${addr.address()}/${addr.prefix()}")
+        }
+
+        // DNS Configuration
+        val dns = options.dnsServerAddress
+        if (dns != null && dns.value.isNotEmpty()) {
+            builder.addDnsServer(dns.value)
+            sdk.logger.append(2, "[PLATFORM] DNS Server set: ${dns.value}")
+        } else {
+            builder.addDnsServer(HiddifyPrefs.BASE_DNS_SERVER)
+            sdk.logger.append(2, "[PLATFORM] Default DNS Server set: ${HiddifyPrefs.BASE_DNS_SERVER}")
+        }
+
+        // Routing
+        if (options.autoRoute) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val inet4RouteAddress = options.inet4RouteAddress
+                if (inet4RouteAddress.hasNext()) {
+                    while (inet4RouteAddress.hasNext()) {
+                        builder.addRoute(inet4RouteAddress.next().toIpPrefix())
+                    }
+                } else {
+                    builder.addRoute(HiddifyPrefs.BASE_ROUTE, 0)
+                }
+
+                val inet6RouteAddress = options.inet6RouteAddress
+                if (inet6RouteAddress.hasNext()) {
+                    while (inet6RouteAddress.hasNext()) {
+                        builder.addRoute(inet6RouteAddress.next().toIpPrefix())
+                    }
+                } else {
+                    builder.addRoute("::", 0)
+                }
+            } else {
+                builder.addRoute(HiddifyPrefs.BASE_ROUTE, 0)
+                builder.addRoute(HiddifyPrefs.ZERO_ROUTE, 0)
+            }
+
+            sdk.logger.append(2, "[PLATFORM] isEnabledApps = $isEnabledApps, appsList == $appsList")
+            builder.enabledApps(
+                isEnabledApps = isEnabledApps,
+                listApps = appsList,
+            )
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            builder.setMetered(false)
+        }
+
+        val pfd = builder.establish() ?: run {
+            val err = service.getString(R.string.vpn_prepare_required)
+            sdk.logger.append(4, "[PLATFORM ERROR] $err")
+            error(err)
+        }
+
+        sdk.logger.append(2, "[PLATFORM] VPN Tunnel established successfully. FD: ${pfd.fd}")
+        return pfd.fd
+    }
+
+    /**
+     * Extends VPN operation to a list of tunneling applications
+     *
+     * @param listApps list of tunneling applications
+     * @param isEnabledApps enable the list of tunneling applications
+     */
+    private fun VpnService.Builder.enabledApps(
+        isEnabledApps: Boolean = true,
+        listApps: List<String>,
+    ): VpnService.Builder {
+        if (!isEnabledApps || listApps.isEmpty()) {
+            sdk.logger.append(2, "[PLATFORM] Split tunneling disabled or empty app list")
+            return this
+        }
+        sdk.logger.append(2, "[PLATFORM] Configuring split tunneling for ${listApps.size} apps...")
+
+        try {
+            val addedApps = HashSet<String>()
+            for (app in listApps) {
+                if (app.isBlank() || app in addedApps) continue
+                if (app == service.packageName) continue
+
+                if (appIsExists(app)) {
+                    try {
+                        this.addAllowedApplication(app)
+                        addedApps.add(app)
+                    } catch (e: Exception) {
+                        // The package may be deleted in the process or may not be suitable.
+                        sdk.logger.append(3, "[PLATFORM WARNING] Failed to add app $app: ${e.message}")
+                    }
+                } else {
+                    sdk.logger.append(3, "[PLATFORM WARNING] Package not installed: $app")
+                }
+            }
+            sdk.logger.append(2, "[PLATFORM] Total allowed apps added: ${addedApps.size}")
+        } catch (e: Exception) {
+            sdk.logger.append(4, "[PLATFORM ERROR] Exception in enabledApps: ${e.message}")
+        }
+
+        return this
+    }
+
+    /**
+     * Проверяет установлено ли приложение на устройстве
+     *
+     * @param packageName Название пакета
+     * @return true - если приложение установлено, false - в остальных случаях
+     */
+    private fun appIsExists(packageName: String): Boolean {
+        try {
+            val ctx = service
+            ctx.packageManager.getPackageInfo(packageName, 0)
+        } catch (e: PackageManager.NameNotFoundException) {
+            // The app isn't installed.
+            return false
+        }
+        return true
+    }
+
+    /**
+     * Processing notifications from the core
+     *
+     * @param notification notification
+     */
+    override fun sendNotification(notification: Notification) {
+        sdk.state.updateNotification(notification)
+
+        val systemNotification = sdk.notifications.createNotification(
+            serverName = null,
+            notification = notification,
+        )
+
+        val manager = service.getSystemService(
+            /* name = */ Context.NOTIFICATION_SERVICE,
+        ) as NotificationManager
+        manager.notify(
+            /* id = */ HiddifyPrefs.NOTIFICATION_ID,
+            /* notification = */ systemNotification,
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun RoutePrefix.toIpPrefix() = IpPrefix(
+        /* address = */ InetAddress.getByName(address()),
+        /* prefixLength = */ prefix(),
+    )
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun findConnectionOwner(
+        ipProtocol: Int,
+        sourceAddress: String,
+        sourcePort: Int,
+        destinationAddress: String,
+        destinationPort: Int,
+    ): ConnectionOwner {
+        return try {
+            val manager = service.getSystemService(
+                /* name = */ Context.CONNECTIVITY_SERVICE,
+            ) as ConnectivityManager
+            val uid = manager.getConnectionOwnerUid(
+                /* protocol = */ ipProtocol,
+                /* local = */ InetSocketAddress(sourceAddress, sourcePort),
+                /* remote = */ InetSocketAddress(destinationAddress, destinationPort),
+            )
+
+            val owner = ConnectionOwner()
+            owner.userId = uid
+            if (uid != Process.INVALID_UID) {
+                val packageName = service.packageManager.getPackagesForUid(
+                    /* uid = */ uid,
+                )?.firstOrNull() ?: ""
+                owner.androidPackageName = packageName
+                owner.userName = packageName
+            }
+            owner
+        } catch (e: Exception) {
+            ConnectionOwner()
+        }
+    }
+
+    override fun readWIFIState(): WIFIState = WIFIState("", "")
+    override fun clearDNSCache() {}
+    override fun getInterfaces(): NetworkInterfaceIterator? = null
+    override fun includeAllNetworks(): Boolean = true
+    override fun localDNSTransport(): LocalDNSTransport? = null
+    override fun startDefaultInterfaceMonitor(listener: InterfaceUpdateListener) {}
+    override fun closeDefaultInterfaceMonitor(listener: InterfaceUpdateListener) {}
+    override fun systemCertificates(): StringIterator? = null
+    override fun underNetworkExtension(): Boolean = false
+    override fun usePlatformAutoDetectInterfaceControl(): Boolean = true
+    override fun useProcFS(): Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+    override fun autoDetectInterfaceControl(fd: Int) {}
+}
+
+package com.yasliks.hiddify_library_lib.extension
+
+/**
+ * Auxiliary function for formatting bytes in a readable form
+ */
+fun Long.formatTraffic(): String {
+    val kb = this / 1024.0
+    val mb = kb / 1024.0
+    return if (mb > 1) "%.2f MB".format(mb) else "%.2f KB".format(kb)
+}
+
+package com.yasliks.hiddify_library_lib.model
+
+data class LogItem(
+    val id: Long,
+    val level: Int,
+    val message: String
+)
+
+package com.yasliks.hiddify_library_lib.prefs
+
+object HiddifyPrefs {
+    const val HIDDIFY = "Hiddify"
+    const val HIDDIFY_LIB = "HiddifyLib"
+    const val HIDDIFY_SMALL = "hiddify"
+    const val EASY_HIDDIFY_TEMP = "hiddify_temp"
+
+
+    const val VLESS_START_CONFIG = "vless"
+    const val SHADOWSOCKS_START_CONFIG = "ss"
+
+
+    const val CONFIG_CONTENT = "config_content"
+    const val NAME_SERVER = "name_server"
+    const val ICON_PUSH = "icon_push"
+    const val APPS_LIST = "apps_list"
+    const val IS_ENABLED_APPS = "is_enabled_apps"
+
+
+    const val VPN = "VPN"
+
+
+    const val SERVER = "server"
+
+
+    const val BASE_MTU = 1500
+    const val BASE_DNS_SERVER = "8.8.8.8"
+    const val BASE_ROUTE = "0.0.0.0"
+    const val ZERO_ROUTE = "::"
+
+
+    const val ACTION_STOP_VPN = "STOP_VPN_ACTION"
+    const val ACTION_VPN_STATE = "VPN_STATE_UPDATE"
+    const val EXTRA_IS_CONNECTED = "extra_connected"
+    const val COMMAND_SERVER_LISTEN_PORT = 6756
+    const val STATUS_INTERVAL = 1000L
+    const val DELAY_BEFORE_EXIT = 200L
+
+
+    const val MAX_LOGS = 500
+    const val CORE = "CORE"
+
+
+    const val CHANNEL_ID = "hiddify_lib_channel"
+    const val NOTIFICATION_ID = 1001
+    const val CONNECTED = "Connected"
+    const val VPN_STATUS = "VPN Status"
+
+
+    const val LENGH_RANDOM_HEX = 16
+}
+
+package com.yasliks.hiddify_library_lib.service
+
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.VpnService
+import android.util.Log
+import androidx.annotation.DrawableRes
+import com.hiddify.core.libbox.CommandClient
+import com.hiddify.core.libbox.CommandClientOptions
+import com.hiddify.core.libbox.CommandServer
+import com.hiddify.core.libbox.Libbox
+import com.hiddify.core.libbox.OverrideOptions
+import com.hiddify.core.libbox.SetupOptions
+import com.yasliks.hiddify_library_lib.EasyHiddify
+import com.yasliks.hiddify_library_lib.core.HiddifyClientHandler
+import com.yasliks.hiddify_library_lib.core.HiddifyCommandHandler
+import com.yasliks.hiddify_library_lib.core.HiddifyPlatform
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlin.system.exitProcess
+
+@SuppressLint("VpnServicePolicy")
+class HiddifyVpnService : VpnService() {
+
+    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var commandServer: CommandServer? = null
+    private var commandClient: CommandClient? = null
+
+    private val sdk get() = EasyHiddify.instance
+
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
+        if (intent?.action == HiddifyPrefs.ACTION_STOP_VPN) {
+            sdk.logger.append(2, "[SERVICE] Received STOP command action")
+            stopVpnInternal()
+            return START_NOT_STICKY
+        }
+
+        val configContent = intent?.getStringExtra(
+            /* name = */ HiddifyPrefs.CONFIG_CONTENT,
+        ) ?: ""
+        val serverName = intent?.getStringExtra(
+            /* name = */ HiddifyPrefs.NAME_SERVER,
+        ) ?: HiddifyPrefs.VPN
+        val icon = intent?.getIntExtra(
+            /* name = */ HiddifyPrefs.ICON_PUSH,
+            /* defaultValue = */ 0,
+        ) ?: 0
+        val appsList = intent?.getStringArrayExtra(
+            /* name = */ HiddifyPrefs.APPS_LIST,
+        )
+        val isEnabledApps = intent?.getBooleanExtra(
+            /* name = */ HiddifyPrefs.IS_ENABLED_APPS,
+            /* defaultValue = */ false,
+        ) ?: false
+
+        sdk.logger.append(2, "[SERVICE] Service started with config length: ${configContent.length}")
+        if (configContent.isNotEmpty()) {
+            startVpn(
+                configContent = configContent,
+                serverName = serverName,
+                icon = icon,
+                appsList = appsList?.toList() ?: emptyList(),
+                isEnabledApps = isEnabledApps,
+            )
+        } else {
+            sdk.logger.append(4, "[SERVICE ERROR] Received empty configuration!")
+            stopVpnInternal()
+        }
+        return START_STICKY
+    }
+
+    /**
+     * Starts a VPN connection using the transmitted configuration
+     *
+     * @param configContent connection configuration string
+     * @param serverName the name of the notification server
+     * @param icon notification icon
+     * @param appsList список приложения для туннелирования
+     * @param isEnabledApps включить список приложения для туннелирования
+     */
+    private fun startVpn(
+        configContent: String,
+        serverName: String,
+        @DrawableRes icon: Int,
+        appsList: List<String>,
+        isEnabledApps: Boolean,
+    ) {
+        val notification = sdk.notifications.createNotification(
+            serverName = serverName,
+            icon = icon,
+        )
+        startForeground(HiddifyPrefs.NOTIFICATION_ID, notification)
+
+        serviceScope.launch {
+            try {
+                sdk.logger.append(2, "[SERVICE] Starting VPN process...")
+                val hiddifyConfig = sdk.generator.generateConfig(configContent)
+
+                Libbox.setup(SetupOptions().apply {
+                    basePath = sdk.coreUtils.getWorkingDir()
+                    workingPath = sdk.coreUtils.getWorkingDir()
+                    tempPath = sdk.coreUtils.getTempDir()
+                    commandServerListenPort = HiddifyPrefs.COMMAND_SERVER_LISTEN_PORT
+                    commandServerSecret = sdk.coreUtils.generateSecret()
+                    fixAndroidStack = true
+                })
+                sdk.logger.append(2, "[SERVICE] Libbox setup completed")
+
+                commandServer = Libbox.newCommandServer(
+                    /* handler = */ HiddifyCommandHandler(this@HiddifyVpnService),
+                    /* platformInterface = */ HiddifyPlatform(
+                        service = this@HiddifyVpnService,
+                        appsList = appsList,
+                        isEnabledApps = isEnabledApps,
+                    ),
+                )
+                commandServer?.start()
+                sdk.logger.append(2, "[SERVICE] CommandServer started")
+
+                commandServer?.startOrReloadService(
+                    /* configContent = */ hiddifyConfig,
+                    /* options = */ OverrideOptions(),
+                )
+                sdk.logger.append(2, "[SERVICE] Core service loaded successfully")
+
+                notifyStateChange(true)
+                setupCommandClient()
+                sdk.logger.append(2, "[SERVICE] VPN started successfully!")
+            } catch (e: Exception) {
+                sdk.logger.append(4, "[SERVICE ERROR] Failed to start VPN: ${e.message}")
+                stopVpnInternal()
+            }
+        }
+    }
+
+    /**
+     * Initializes the client and starts the connection
+     */
+    private fun setupCommandClient() {
+        try {
+            sdk.logger.append(2, "[SERVICE] Connecting CommandClient...")
+            val options = CommandClientOptions()
+                .apply {
+                    statusInterval = HiddifyPrefs.STATUS_INTERVAL
+                }
+            commandClient = Libbox.newCommandClient(
+                /* handler = */ HiddifyClientHandler(this),
+                /* options = */ options,
+            )
+            commandClient?.connect()
+            sdk.logger.append(2, "[SERVICE] CommandClient connected")
+        } catch (e: Exception) {
+            sdk.logger.append(4, "[SERVICE ERROR] CommandClient failed: ${e.message}")
+        }
+    }
+
+    /**
+     * Notifies the VPN connection status
+     *
+     * @param isConnected transmitted connection status
+     */
+    private fun notifyStateChange(isConnected: Boolean) {
+        val intent = Intent(HiddifyPrefs.ACTION_VPN_STATE).apply {
+            putExtra(HiddifyPrefs.EXTRA_IS_CONNECTED, isConnected)
+            setPackage(packageName)
+        }
+        sendBroadcast(intent)
+    }
+
+    /**
+     * Closes the VPN connection
+     */
+    private fun stopVpnInternal() {
+        sdk.logger.append(2, "[SERVICE] Stopping VPN service...")
+        notifyStateChange(false)
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        Thread {
+            try {
+                commandClient?.disconnect()
+                commandServer?.closeService()
+                commandServer?.close()
+                sdk.logger.append(2, "[SERVICE] Core services closed cleanly")
+            } catch (e: Exception) {
+                sdk.logger.append(4, "[SERVICE ERROR] Exception while stopping VPN: ${e.message}")
+            } finally {
+                stopSelf()
+                sdk.logger.append(2, "[SERVICE] VPN stopped. Exiting process...")
+                Thread.sleep(HiddifyPrefs.DELAY_BEFORE_EXIT)
+                exitProcess(0)
+            }
+        }.start()
+    }
+
+    override fun onDestroy() {
+        serviceScope.cancel()
+        super.onDestroy()
+    }
+}
+
+package com.yasliks.hiddify_library_lib.utils
+
+import android.content.Context
+import android.net.Uri
+import android.util.Base64
+import androidx.core.net.toUri
+import com.yasliks.easy_hiddify_lib.R
+import com.yasliks.hiddify_library_lib.EasyHiddify
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs.SHADOWSOCKS_START_CONFIG
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs.VLESS_START_CONFIG
+import org.json.JSONArray
+import org.json.JSONObject
+
+/**
+ * Config parsing utility
+ *
+ * Parses configs `vless://` and `ss://`
+ */
+class HiddifyConfigUtils(private val context: Context) {
+
+
+    private val sdk get() = EasyHiddify.instance
+
+
+    /**
+     * Parses configs
+     *
+     * @param configStr configuration in the format `vless://`, `ss://` or `hiddify`
+     *
+     * @return returns the config in the format `hiddify (json)`
+     */
+    fun generateConfig(configStr: String): String {
+        val trimmed = configStr.trim()
+        sdk.logger.append(2, "[CONFIG] Generating config from string input...")
+
+        if (trimmed.startsWith("{")) {
+            sdk.logger.append(2, "[CONFIG] Raw JSON config detected")
+            return trimmed
+        }
+
+        try {
+            val uri = trimmed.toUri()
+            sdk.logger.append(2, "[CONFIG] Protocol scheme detected: ${uri.scheme}")
+            return when (uri.scheme) {
+                VLESS_START_CONFIG -> generateVless(uri)
+                SHADOWSOCKS_START_CONFIG -> generateShadowsocks(uri)
+                else -> {
+                    val err = context.getString(R.string.unsupported_protocol, uri.scheme)
+                    sdk.logger.append(4, "[CONFIG ERROR] $err")
+                    throw Exception(err)
+                }
+            }
+        } catch (e: Exception) {
+            val errMessage = e.message ?: "Unknown config parsing error"
+            sdk.logger.append(4, "[CONFIG ERROR] $errMessage")
+            return JSONObject().put(context.getString(R.string.error), errMessage).toString()
+        }
+    }
+
+    private fun generateVless(uri: Uri): String {
+        val uuid = uri.userInfo
+        val host = uri.host ?: ""
+        val port = uri.port
+        val security = uri.getQueryParameter("security") ?: "none"
+        val sni = uri.getQueryParameter("sni") ?: ""
+        val fp = uri.getQueryParameter("fp") ?: "chrome"
+        val flow = uri.getQueryParameter("flow") ?: ""
+
+        // Parameters for Reality
+        val pbk = uri.getQueryParameter("pbk") ?: ""
+        val sid = uri.getQueryParameter("sid") ?: ""
+
+        sdk.logger.append(2, "[CONFIG] Parsed VLESS -> Host: $host:$port | Security: $security | SNI: $sni | FP: $fp | Flow: $flow")
+
+        val root = JSONObject()
+
+        root.put("log", JSONObject().apply {
+            put("level", "debug")
+            put("timestamp", true)
+        })
+
+        root.put(
+            "dns", JSONObject().put(
+                "servers", JSONArray().put(
+                    JSONObject().apply {
+                        put("tag", "dns-remote")
+                        put("address", "8.8.8.8")
+                    }
+                )))
+
+        // Inbounds (TUN)
+        root.put("inbounds", JSONArray().put(JSONObject().apply {
+            put("type", "tun")
+            put("tag", "tun-in")
+            put("address", JSONArray().put("172.19.0.1/30"))
+            put("auto_route", true)
+            put("strict_route", true)
+            put("stack", "gvisor")
+            put("sniff", true)
+        }))
+
+        // Outbounds
+        val outbounds = JSONArray()
+
+        // Main proxy (VLESS)
+        val proxy = JSONObject().apply {
+            put("type", VLESS_START_CONFIG)
+            put("tag", "proxy")
+            put(HiddifyPrefs.SERVER, host)
+            put("server_port", port)
+            put("uuid", uuid)
+            if (flow.isNotEmpty()) put("flow", flow)
+
+            // Configuring TLS / Reality
+            if (security == "reality" || security == "tls" || security == "xtls") {
+                val tls = JSONObject()
+                tls.put("enabled", true)
+                tls.put("server_name", sni)
+
+                // Fingerprint (uTLS)
+                tls.put("utls", JSONObject().apply {
+                    put("enabled", true)
+                    put("fingerprint", fp)
+                })
+
+                // Если это Reality, добавляем специфичный блок
+                if (security == "reality") {
+                    tls.put("reality", JSONObject().apply {
+                        put("enabled", true)
+                        put("public_key", pbk)
+                        put("short_id", sid)
+                    })
+                }
+
+                put("tls", tls)
+            }
+        }
+
+        outbounds.put(proxy)
+        outbounds.put(JSONObject().put("type", "direct").put("tag", "direct"))
+        outbounds.put(JSONObject().put("type", "dns").put("tag", "dns-out"))
+
+        root.put("outbounds", outbounds)
+
+        // Route
+        root.put("route", JSONObject().apply {
+            put("rules", JSONArray().put(JSONObject().apply {
+                put("protocol", "dns")
+                put("outbound", "dns-out")
+            }))
+            put("final", "proxy")
+        })
+
+        val res = root.toString(2)
+        return res
+    }
+
+    private fun generateShadowsocks(uri: Uri): String {
+        val host = uri.host ?: ""
+        val port = uri.port
+
+        // Decoding the userInfo (method:password) from Base64
+        val decodedUserInfo = try {
+            String(Base64.decode(uri.userInfo ?: "", Base64.DEFAULT))
+        } catch (e: Exception) {
+            val err = context.getString(R.string.invalid_ss_base)
+            sdk.logger.append(4, "[CONFIG ERROR] $err")
+            throw Exception(err)
+        }
+
+        val parts = decodedUserInfo.split(":", limit = 2)
+        if (parts.size < 2) {
+            val err = context.getString(R.string.invalid_ss_userinfo_format)
+            sdk.logger.append(4, "[CONFIG ERROR] $err")
+            throw Exception(err)
+        }
+
+        val method = parts[0]
+        val password = parts[1]
+
+        sdk.logger.append(2, "[CONFIG] Parsed SS -> Host: $host:$port | Method: $method")
+
+        val root = JSONObject()
+
+        root.put("log", JSONObject().apply {
+            put("level", "debug")
+            put("timestamp", true)
+        })
+
+        // DNS
+        root.put(
+            "dns", JSONObject().put(
+                "servers", JSONArray().put(
+                    JSONObject().apply {
+                        put("tag", "dns-remote")
+                        put("address", "8.8.8.8")
+                    }
+                )))
+
+        // Inbounds (TUN)
+        root.put("inbounds", JSONArray().put(JSONObject().apply {
+            put("type", "tun")
+            put("tag", "tun-in")
+            put("address", JSONArray().put("172.19.0.1/30"))
+            put("auto_route", true)
+            put("strict_route", false)
+            put("stack", "gvisor")
+            put("sniff", true)
+        }))
+
+        // Outbounds
+        val outbounds = JSONArray()
+        val proxy = JSONObject().apply {
+            put("type", "shadowsocks")
+            put("tag", "proxy")
+            put(HiddifyPrefs.SERVER, host)
+            put("server_port", port)
+            put("method", method)
+            put("password", password)
+        }
+
+        outbounds.put(proxy)
+        outbounds.put(JSONObject().put("type", "direct").put("tag", "direct"))
+        outbounds.put(JSONObject().put("type", "dns").put("tag", "dns-out"))
+        root.put("outbounds", outbounds)
+
+        // Route
+        root.put("route", JSONObject().apply {
+            put("rules", JSONArray().put(JSONObject().apply {
+                put("protocol", "dns")
+                put("outbound", "dns-out")
+            }))
+            put("final", "proxy")
+        })
+
+        val res = root.toString(2)
+        return res
+    }
+}
+
+package com.yasliks.hiddify_library_lib.utils
+
+import android.content.Context
+import com.hiddify.core.libbox.Libbox
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
+import java.io.File
+
+class HiddifyCoreUtils(private val context: Context) {
+
+    fun getWorkingDir(): String {
+        val dir = File(context.filesDir, HiddifyPrefs.HIDDIFY_SMALL)
+        if (!dir.exists()) dir.mkdirs()
+        return dir.absolutePath
+    }
+
+    fun getTempDir(): String {
+        val dir = File(context.cacheDir, HiddifyPrefs.EASY_HIDDIFY_TEMP)
+        if (!dir.exists()) dir.mkdirs()
+        return dir.absolutePath
+    }
+
+    fun generateSecret(): String {
+        return Libbox.randomHex(HiddifyPrefs.LENGH_RANDOM_HEX).value
+    }
+}
+
+package com.yasliks.hiddify_library_lib.utils
+
+import android.content.Context
+import android.util.Log
+import com.hiddify.core.libbox.LogEntry
+import com.hiddify.core.libbox.LogIterator
+import com.yasliks.hiddify_library_lib.model.LogItem
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import java.util.concurrent.atomic.AtomicLong
+
+class HiddifyLoggerUtils(private val context: Context) {
+    private val idCounter = AtomicLong(0)
+    private val _logs = MutableStateFlow<List<LogItem>>(emptyList())
+    val logs = _logs.asStateFlow()
+
+    fun append(level: Int, message: String) {
+        val item = LogItem(
+            id = idCounter.incrementAndGet(),
+            level = level,
+            message = message
+        )
+
+        _logs.update { currentList ->
+            val updated = currentList.toMutableList()
+            updated.add(item)
+            if (updated.size > HiddifyPrefs.MAX_LOGS) {
+                updated.removeAt(0)
+            }
+            updated
+        }
+
+        when (level) {
+            0 -> Log.v(HiddifyPrefs.HIDDIFY_LIB, message)
+            1 -> Log.d(HiddifyPrefs.HIDDIFY_LIB, message)
+            2 -> Log.i(HiddifyPrefs.HIDDIFY_LIB, message)
+            3 -> Log.w(HiddifyPrefs.HIDDIFY_LIB, message)
+            else -> Log.e(HiddifyPrefs.HIDDIFY_LIB, message)
+        }
+    }
+
+    fun append(entry: LogEntry) {
+        append(entry.level, entry.message)
+    }
+
+    fun append(iterator: LogIterator) {
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            append(entry.level, entry.message)
+        }
+    }
+
+    fun clear() {
+        _logs.value = emptyList()
+        append(2, "[LOGGER] Logs cleared")
+    }
+}
+
+package com.yasliks.hiddify_library_lib.utils
+
+import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
+import androidx.annotation.DrawableRes
+import androidx.core.app.NotificationCompat
+import com.hiddify.core.libbox.Notification
+import com.yasliks.easy_hiddify_lib.R
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
+
+class HiddifyNotificationUtils(
+    private val context: Context,
+) {
+    @DrawableRes
+    var currentIcon: Int = 0
+
+    @SuppressLint("ObsoleteSdkInt")
+    fun createNotification(
+        serverName: String?,
+        @DrawableRes icon: Int = 0,
+        notification: Notification? = null
+    ): android.app.Notification {
+        if (icon != 0) {
+            currentIcon = icon
+        }
+
+        val manager = context.getSystemService(
+            /* name = */ Context.NOTIFICATION_SERVICE,
+        ) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                /* id = */ HiddifyPrefs.CHANNEL_ID,
+                /* name = */ HiddifyPrefs.VPN_STATUS,
+                /* importance = */ NotificationManager.IMPORTANCE_DEFAULT,
+            ).apply {
+                setShowBadge(false)
+            }
+            manager.createNotificationChannel(channel)
+        }
+
+        val title = notification?.title ?: serverName ?: HiddifyPrefs.VPN
+        val content = notification?.body ?: HiddifyPrefs.CONNECTED
+
+        val iconToSet = if (icon != 0) {
+            icon
+        } else {
+            if (currentIcon != 0) {
+                currentIcon
+            } else {
+                R.drawable.outline_vpn_lock_24
+            }
+        }
+
+        return NotificationCompat.Builder(context, HiddifyPrefs.CHANNEL_ID)
+            .setSmallIcon(iconToSet)
+            .setContentTitle(title)
+            .setContentText(content)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true)
+            .build()
+    }
+
+}
+
+package com.yasliks.hiddify_library_lib.utils
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.core.content.ContextCompat
+import com.hiddify.core.libbox.Notification
+import com.hiddify.core.libbox.OutboundGroup
+import com.hiddify.core.libbox.StatusMessage
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+class HiddifyStateUtils(context: Context) {
+
+    private val _connected = MutableStateFlow(false)
+    val connected = _connected.asStateFlow()
+
+    private val _status = MutableStateFlow<StatusMessage?>(null)
+    val status = _status.asStateFlow()
+
+    private val _notification = MutableStateFlow<Notification?>(null)
+    val notification = _notification.asStateFlow()
+
+    private val _groups = MutableStateFlow<List<OutboundGroup>>(emptyList())
+    val groups = _groups.asStateFlow()
+
+
+    init {
+        val filter = IntentFilter(HiddifyPrefs.ACTION_VPN_STATE)
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, intent: Intent?) {
+                if (intent?.action == HiddifyPrefs.ACTION_VPN_STATE) {
+                    val isConnected = intent.getBooleanExtra(
+                        HiddifyPrefs.EXTRA_IS_CONNECTED,
+                        false,
+                    )
+                    _connected.value = isConnected
+                    if (!isConnected) resetLocal()
+                }
+            }
+        }
+        ContextCompat.registerReceiver(
+            /* context = */ context,
+            /* receiver = */ receiver,
+            /* filter = */ filter,
+            /* flags = */ ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+    }
+
+    internal fun updateNotification(value: Notification?) {
+        _notification.value = value
+    }
+
+    internal fun updateConnected(value: Boolean) {
+        _connected.value = value
+    }
+
+    internal fun updateStatus(message: StatusMessage?) {
+        _status.value = message
+    }
+
+    internal fun updateGroups(list: List<OutboundGroup>) {
+        _groups.value = list
+    }
+
+    private fun resetLocal() {
+        _status.value = null
+        _groups.value = emptyList()
+    }
+}
+
+package com.yasliks.hiddify_library_lib
+
+import android.content.Context
+import android.content.Intent
+import androidx.annotation.DrawableRes
+import com.hiddify.core.libbox.Libbox
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
+import com.yasliks.hiddify_library_lib.service.HiddifyVpnService
+import com.yasliks.hiddify_library_lib.utils.HiddifyConfigUtils
+import com.yasliks.hiddify_library_lib.utils.HiddifyLoggerUtils
+import com.yasliks.hiddify_library_lib.utils.HiddifyNotificationUtils
+import com.yasliks.hiddify_library_lib.utils.HiddifyStateUtils
+import com.yasliks.hiddify_library_lib.utils.HiddifyCoreUtils
+import go.Seq
+
+class EasyHiddify private constructor(
+    context: Context,
+) {
+
+    private val appContext = context.applicationContext
+
+    val state = HiddifyStateUtils(appContext)
+    val logger = HiddifyLoggerUtils(appContext)
+    val generator = HiddifyConfigUtils(appContext)
+    val coreUtils = HiddifyCoreUtils(appContext)
+    val notifications = HiddifyNotificationUtils(appContext)
+
+    companion object {
+        @Volatile
+        private var INSTANCE: EasyHiddify? = null
+
+        /**
+         * Initializes `EasyHiddify`
+         *
+         * @param context for library needs
+         */
+        fun init(context: Context): EasyHiddify {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: run {
+                    val ctx = context.applicationContext
+
+                    // Initializing the Go layer
+                    Seq.setContext(ctx)
+                    Libbox.touch()
+
+                    val instance = EasyHiddify(ctx)
+                    INSTANCE = instance
+                    instance.logger.append(2, "[SDK] EasyHiddify initialized")
+                    instance
+                }
+            }
+        }
+
+        /**
+         * Global access `EasyHiddify`
+         */
+        val instance: EasyHiddify
+            get() = INSTANCE ?: throw IllegalStateException(
+                "EasyHiddify must be initialized in Application.onCreate using EasyHiddify.init(this)"
+            )
+    }
+
+    /**
+     * Launching a VPN via Intent
+     *
+     * @param configStr connection configuration string
+     * @param serverName the name of the notification server
+     * @param icon notification icon
+     * @param appsList список приложения для туннелирования
+     * @param isEnabledApps включить список приложения для туннелирования
+     */
+    fun startVpn(
+        configStr: String,
+        serverName: String = HiddifyPrefs.SERVER,
+        @DrawableRes icon: Int = 0,
+        appsList: List<String> = emptyList(),
+        isEnabledApps: Boolean = false,
+    ) {
+        logger.append(2, "[SDK] Requesting VPN start. Apps count: ${appsList.size}, split tunneling enabled: $isEnabledApps")
+
+        val intent = Intent(
+            /* packageContext = */ appContext,
+            /* cls = */ HiddifyVpnService::class.java,
+        ).apply {
+            putExtra(HiddifyPrefs.CONFIG_CONTENT, configStr)
+            putExtra(HiddifyPrefs.NAME_SERVER, serverName)
+            putExtra(HiddifyPrefs.ICON_PUSH, icon)
+            putExtra(HiddifyPrefs.APPS_LIST, appsList.toTypedArray())
+            putExtra(HiddifyPrefs.IS_ENABLED_APPS, isEnabledApps)
+        }
+        appContext.startService(intent)
+    }
+
+    /**
+     * Stopping VPN via Intent
+     */
+    fun stopVpn() {
+        logger.append(2, "[SDK] Requesting VPN stop")
+        val intent = Intent(
+            /* packageContext = */ appContext,
+            /* cls = */ HiddifyVpnService::class.java,
+        ).apply {
+            action = HiddifyPrefs.ACTION_STOP_VPN
+        }
+        appContext.startService(intent)
+    }
+}

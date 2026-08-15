@@ -1,0 +1,4868 @@
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/AndroidVPNType.class */
+public final class AndroidVPNType implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native String getCoreType();
+
+    public final native void setCoreType(String v);
+
+    public final native String getCorePath();
+
+    public final native void setCorePath(String v);
+
+    public final native String getGoVersion();
+
+    public final native void setGoVersion(String v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    AndroidVPNType(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public AndroidVPNType() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof AndroidVPNType)) {
+            return false;
+        }
+        AndroidVPNType that = (AndroidVPNType) o;
+        String thisCoreType = getCoreType();
+        String thatCoreType = that.getCoreType();
+        if (thisCoreType == null) {
+            if (thatCoreType != null) {
+                return false;
+            }
+        } else if (!thisCoreType.equals(thatCoreType)) {
+            return false;
+        }
+        String thisCorePath = getCorePath();
+        String thatCorePath = that.getCorePath();
+        if (thisCorePath == null) {
+            if (thatCorePath != null) {
+                return false;
+            }
+        } else if (!thisCorePath.equals(thatCorePath)) {
+            return false;
+        }
+        String thisGoVersion = getGoVersion();
+        String thatGoVersion = that.getGoVersion();
+        if (thisGoVersion == null) {
+            if (thatGoVersion != null) {
+                return false;
+            }
+            return true;
+        }
+        if (!thisGoVersion.equals(thatGoVersion)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getCoreType(), getCorePath(), getGoVersion()});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("AndroidVPNType").append("{");
+        b.append("CoreType:").append(getCoreType()).append(",");
+        b.append("CorePath:").append(getCorePath()).append(",");
+        b.append("GoVersion:").append(getGoVersion()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/CommandClient.class */
+public final class CommandClient implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __NewCommandClient(CommandClientHandler handler, CommandClientOptions options);
+
+    public native void clearLogs() throws Exception;
+
+    public native void closeConnection(String connId) throws Exception;
+
+    public native void closeConnections() throws Exception;
+
+    public native void connect() throws Exception;
+
+    public native void connectWithFD(int fd) throws Exception;
+
+    public native void disconnect() throws Exception;
+
+    public native DeprecatedNoteIterator getDeprecatedNotes() throws Exception;
+
+    public native long getStartedAt() throws Exception;
+
+    public native SystemProxyStatus getSystemProxyStatus() throws Exception;
+
+    public native void selectOutbound(String groupTag, String outboundTag) throws Exception;
+
+    public native void serviceClose() throws Exception;
+
+    public native void serviceReload() throws Exception;
+
+    public native void setClashMode(String newMode) throws Exception;
+
+    public native void setGroupExpand(String groupTag, boolean isExpand) throws Exception;
+
+    public native void setSystemProxyEnabled(boolean isEnabled) throws Exception;
+
+    public native void urlTest(String groupTag) throws Exception;
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    public CommandClient(CommandClientHandler handler, CommandClientOptions options) {
+        this.refnum = __NewCommandClient(handler, options);
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    CommandClient(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof CommandClient)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[0]);
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("CommandClient").append("{");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/CommandClientHandler.class */
+public interface CommandClientHandler {
+    void clearLogs();
+
+    void connected();
+
+    void disconnected(String message);
+
+    void initializeClashMode(StringIterator modeList, String currentMode);
+
+    void setDefaultLogLevel(int level);
+
+    void updateClashMode(String newMode);
+
+    void writeConnectionEvents(ConnectionEvents events);
+
+    void writeGroups(OutboundGroupIterator message);
+
+    void writeLogs(LogIterator messageList);
+
+    void writeStatus(StatusMessage message);
+}
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/CommandClientOptions.class */
+public final class CommandClientOptions implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native long getStatusInterval();
+
+    public final native void setStatusInterval(long v);
+
+    public native void addCommand(int command);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    CommandClientOptions(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public CommandClientOptions() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof CommandClientOptions)) {
+            return false;
+        }
+        CommandClientOptions that = (CommandClientOptions) o;
+        long thisStatusInterval = getStatusInterval();
+        long thatStatusInterval = that.getStatusInterval();
+        if (thisStatusInterval != thatStatusInterval) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{Long.valueOf(getStatusInterval())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("CommandClientOptions").append("{");
+        b.append("StatusInterval:").append(getStatusInterval()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/CommandServer.class */
+public final class CommandServer implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __NewCommandServer(CommandServerHandler handler, PlatformInterface platformInterface);
+
+    public native void checkConfig(String configContent) throws Exception;
+
+    public native void close();
+
+    public native void closeService() throws Exception;
+
+    public native String formatConfig(String configContent) throws Exception;
+
+    public native boolean needFindProcess();
+
+    public native boolean needWIFIState();
+
+    public native void pause();
+
+    public native void resetNetwork();
+
+    public native void setError(String message);
+
+    public native void start() throws Exception;
+
+    public native void startOrReloadService(String configContent, OverrideOptions options) throws Exception;
+
+    public native void updateWIFIState();
+
+    public native void wake();
+
+    public native void writeMessage(int level, String message);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    public CommandServer(CommandServerHandler handler, PlatformInterface platformInterface) {
+        this.refnum = __NewCommandServer(handler, platformInterface);
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    CommandServer(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof CommandServer)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[0]);
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("CommandServer").append("{");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/CommandServerHandler.class */
+public interface CommandServerHandler {
+    SystemProxyStatus getSystemProxyStatus() throws Exception;
+
+    void serviceReload() throws Exception;
+
+    void serviceStop() throws Exception;
+
+    void setSystemProxyEnabled(boolean enabled) throws Exception;
+
+    void writeDebugMessage(String message);
+}
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Connection.class */
+public final class Connection implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native String getID();
+
+    public final native void setID(String v);
+
+    public final native String getInbound();
+
+    public final native void setInbound(String v);
+
+    public final native String getInboundType();
+
+    public final native void setInboundType(String v);
+
+    public final native int getIPVersion();
+
+    public final native void setIPVersion(int v);
+
+    public final native String getNetwork();
+
+    public final native void setNetwork(String v);
+
+    public final native String getSource();
+
+    public final native void setSource(String v);
+
+    public final native String getDestination();
+
+    public final native void setDestination(String v);
+
+    public final native String getDomain();
+
+    public final native void setDomain(String v);
+
+    public final native String getProtocol();
+
+    public final native void setProtocol(String v);
+
+    public final native String getUser();
+
+    public final native void setUser(String v);
+
+    public final native String getFromOutbound();
+
+    public final native void setFromOutbound(String v);
+
+    public final native long getCreatedAt();
+
+    public final native void setCreatedAt(long v);
+
+    public final native long getClosedAt();
+
+    public final native void setClosedAt(long v);
+
+    public final native long getUplink();
+
+    public final native void setUplink(long v);
+
+    public final native long getDownlink();
+
+    public final native void setDownlink(long v);
+
+    public final native long getUplinkTotal();
+
+    public final native void setUplinkTotal(long v);
+
+    public final native long getDownlinkTotal();
+
+    public final native void setDownlinkTotal(long v);
+
+    public final native String getRule();
+
+    public final native void setRule(String v);
+
+    public final native String getOutbound();
+
+    public final native void setOutbound(String v);
+
+    public final native String getOutboundType();
+
+    public final native void setOutboundType(String v);
+
+    public final native ProcessInfo getProcessInfo();
+
+    public final native void setProcessInfo(ProcessInfo v);
+
+    public native StringIterator chain();
+
+    public native String displayDestination();
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    Connection(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public Connection() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof Connection)) {
+            return false;
+        }
+        Connection that = (Connection) o;
+        String thisID = getID();
+        String thatID = that.getID();
+        if (thisID == null) {
+            if (thatID != null) {
+                return false;
+            }
+        } else if (!thisID.equals(thatID)) {
+            return false;
+        }
+        String thisInbound = getInbound();
+        String thatInbound = that.getInbound();
+        if (thisInbound == null) {
+            if (thatInbound != null) {
+                return false;
+            }
+        } else if (!thisInbound.equals(thatInbound)) {
+            return false;
+        }
+        String thisInboundType = getInboundType();
+        String thatInboundType = that.getInboundType();
+        if (thisInboundType == null) {
+            if (thatInboundType != null) {
+                return false;
+            }
+        } else if (!thisInboundType.equals(thatInboundType)) {
+            return false;
+        }
+        int thisIPVersion = getIPVersion();
+        int thatIPVersion = that.getIPVersion();
+        if (thisIPVersion != thatIPVersion) {
+            return false;
+        }
+        String thisNetwork = getNetwork();
+        String thatNetwork = that.getNetwork();
+        if (thisNetwork == null) {
+            if (thatNetwork != null) {
+                return false;
+            }
+        } else if (!thisNetwork.equals(thatNetwork)) {
+            return false;
+        }
+        String thisSource = getSource();
+        String thatSource = that.getSource();
+        if (thisSource == null) {
+            if (thatSource != null) {
+                return false;
+            }
+        } else if (!thisSource.equals(thatSource)) {
+            return false;
+        }
+        String thisDestination = getDestination();
+        String thatDestination = that.getDestination();
+        if (thisDestination == null) {
+            if (thatDestination != null) {
+                return false;
+            }
+        } else if (!thisDestination.equals(thatDestination)) {
+            return false;
+        }
+        String thisDomain = getDomain();
+        String thatDomain = that.getDomain();
+        if (thisDomain == null) {
+            if (thatDomain != null) {
+                return false;
+            }
+        } else if (!thisDomain.equals(thatDomain)) {
+            return false;
+        }
+        String thisProtocol = getProtocol();
+        String thatProtocol = that.getProtocol();
+        if (thisProtocol == null) {
+            if (thatProtocol != null) {
+                return false;
+            }
+        } else if (!thisProtocol.equals(thatProtocol)) {
+            return false;
+        }
+        String thisUser = getUser();
+        String thatUser = that.getUser();
+        if (thisUser == null) {
+            if (thatUser != null) {
+                return false;
+            }
+        } else if (!thisUser.equals(thatUser)) {
+            return false;
+        }
+        String thisFromOutbound = getFromOutbound();
+        String thatFromOutbound = that.getFromOutbound();
+        if (thisFromOutbound == null) {
+            if (thatFromOutbound != null) {
+                return false;
+            }
+        } else if (!thisFromOutbound.equals(thatFromOutbound)) {
+            return false;
+        }
+        long thisCreatedAt = getCreatedAt();
+        long thatCreatedAt = that.getCreatedAt();
+        if (thisCreatedAt != thatCreatedAt) {
+            return false;
+        }
+        long thisClosedAt = getClosedAt();
+        long thatClosedAt = that.getClosedAt();
+        if (thisClosedAt != thatClosedAt) {
+            return false;
+        }
+        long thisUplink = getUplink();
+        long thatUplink = that.getUplink();
+        if (thisUplink != thatUplink) {
+            return false;
+        }
+        long thisDownlink = getDownlink();
+        long thatDownlink = that.getDownlink();
+        if (thisDownlink != thatDownlink) {
+            return false;
+        }
+        long thisUplinkTotal = getUplinkTotal();
+        long thatUplinkTotal = that.getUplinkTotal();
+        if (thisUplinkTotal != thatUplinkTotal) {
+            return false;
+        }
+        long thisDownlinkTotal = getDownlinkTotal();
+        long thatDownlinkTotal = that.getDownlinkTotal();
+        if (thisDownlinkTotal != thatDownlinkTotal) {
+            return false;
+        }
+        String thisRule = getRule();
+        String thatRule = that.getRule();
+        if (thisRule == null) {
+            if (thatRule != null) {
+                return false;
+            }
+        } else if (!thisRule.equals(thatRule)) {
+            return false;
+        }
+        String thisOutbound = getOutbound();
+        String thatOutbound = that.getOutbound();
+        if (thisOutbound == null) {
+            if (thatOutbound != null) {
+                return false;
+            }
+        } else if (!thisOutbound.equals(thatOutbound)) {
+            return false;
+        }
+        String thisOutboundType = getOutboundType();
+        String thatOutboundType = that.getOutboundType();
+        if (thisOutboundType == null) {
+            if (thatOutboundType != null) {
+                return false;
+            }
+        } else if (!thisOutboundType.equals(thatOutboundType)) {
+            return false;
+        }
+        ProcessInfo thisProcessInfo = getProcessInfo();
+        ProcessInfo thatProcessInfo = that.getProcessInfo();
+        if (thisProcessInfo == null) {
+            if (thatProcessInfo != null) {
+                return false;
+            }
+            return true;
+        }
+        if (!thisProcessInfo.equals(thatProcessInfo)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getID(), getInbound(), getInboundType(), Integer.valueOf(getIPVersion()), getNetwork(), getSource(), getDestination(), getDomain(), getProtocol(), getUser(), getFromOutbound(), Long.valueOf(getCreatedAt()), Long.valueOf(getClosedAt()), Long.valueOf(getUplink()), Long.valueOf(getDownlink()), Long.valueOf(getUplinkTotal()), Long.valueOf(getDownlinkTotal()), getRule(), getOutbound(), getOutboundType(), getProcessInfo()});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("Connection").append("{");
+        b.append("ID:").append(getID()).append(",");
+        b.append("Inbound:").append(getInbound()).append(",");
+        b.append("InboundType:").append(getInboundType()).append(",");
+        b.append("IPVersion:").append(getIPVersion()).append(",");
+        b.append("Network:").append(getNetwork()).append(",");
+        b.append("Source:").append(getSource()).append(",");
+        b.append("Destination:").append(getDestination()).append(",");
+        b.append("Domain:").append(getDomain()).append(",");
+        b.append("Protocol:").append(getProtocol()).append(",");
+        b.append("User:").append(getUser()).append(",");
+        b.append("FromOutbound:").append(getFromOutbound()).append(",");
+        b.append("CreatedAt:").append(getCreatedAt()).append(",");
+        b.append("ClosedAt:").append(getClosedAt()).append(",");
+        b.append("Uplink:").append(getUplink()).append(",");
+        b.append("Downlink:").append(getDownlink()).append(",");
+        b.append("UplinkTotal:").append(getUplinkTotal()).append(",");
+        b.append("DownlinkTotal:").append(getDownlinkTotal()).append(",");
+        b.append("Rule:").append(getRule()).append(",");
+        b.append("Outbound:").append(getOutbound()).append(",");
+        b.append("OutboundType:").append(getOutboundType()).append(",");
+        b.append("ProcessInfo:").append(getProcessInfo()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ConnectionEvent.class */
+public final class ConnectionEvent implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native int getType();
+
+    public final native void setType(int v);
+
+    public final native String getID();
+
+    public final native void setID(String v);
+
+    public final native Connection getConnection();
+
+    public final native void setConnection(Connection v);
+
+    public final native long getUplinkDelta();
+
+    public final native void setUplinkDelta(long v);
+
+    public final native long getDownlinkDelta();
+
+    public final native void setDownlinkDelta(long v);
+
+    public final native long getClosedAt();
+
+    public final native void setClosedAt(long v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    ConnectionEvent(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public ConnectionEvent() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof ConnectionEvent)) {
+            return false;
+        }
+        ConnectionEvent that = (ConnectionEvent) o;
+        int thisType = getType();
+        int thatType = that.getType();
+        if (thisType != thatType) {
+            return false;
+        }
+        String thisID = getID();
+        String thatID = that.getID();
+        if (thisID == null) {
+            if (thatID != null) {
+                return false;
+            }
+        } else if (!thisID.equals(thatID)) {
+            return false;
+        }
+        Connection thisConnection = getConnection();
+        Connection thatConnection = that.getConnection();
+        if (thisConnection == null) {
+            if (thatConnection != null) {
+                return false;
+            }
+        } else if (!thisConnection.equals(thatConnection)) {
+            return false;
+        }
+        long thisUplinkDelta = getUplinkDelta();
+        long thatUplinkDelta = that.getUplinkDelta();
+        if (thisUplinkDelta != thatUplinkDelta) {
+            return false;
+        }
+        long thisDownlinkDelta = getDownlinkDelta();
+        long thatDownlinkDelta = that.getDownlinkDelta();
+        if (thisDownlinkDelta != thatDownlinkDelta) {
+            return false;
+        }
+        long thisClosedAt = getClosedAt();
+        long thatClosedAt = that.getClosedAt();
+        if (thisClosedAt != thatClosedAt) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{Integer.valueOf(getType()), getID(), getConnection(), Long.valueOf(getUplinkDelta()), Long.valueOf(getDownlinkDelta()), Long.valueOf(getClosedAt())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("ConnectionEvent").append("{");
+        b.append("Type:").append(getType()).append(",");
+        b.append("ID:").append(getID()).append(",");
+        b.append("Connection:").append(getConnection()).append(",");
+        b.append("UplinkDelta:").append(getUplinkDelta()).append(",");
+        b.append("DownlinkDelta:").append(getDownlinkDelta()).append(",");
+        b.append("ClosedAt:").append(getClosedAt()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ConnectionEventIterator.class */
+public interface ConnectionEventIterator {
+    boolean hasNext();
+
+    ConnectionEvent next();
+}
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ConnectionEvents.class */
+public final class ConnectionEvents implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native boolean getReset();
+
+    public final native void setReset(boolean v);
+
+    public native ConnectionEventIterator iterator();
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    ConnectionEvents(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public ConnectionEvents() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof ConnectionEvents)) {
+            return false;
+        }
+        ConnectionEvents that = (ConnectionEvents) o;
+        boolean thisReset = getReset();
+        boolean thatReset = that.getReset();
+        if (thisReset != thatReset) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{Boolean.valueOf(getReset())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("ConnectionEvents").append("{");
+        b.append("Reset:").append(getReset()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ConnectionIterator.class */
+public interface ConnectionIterator {
+    boolean hasNext();
+
+    Connection next();
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ConnectionOwner.class */
+public final class ConnectionOwner implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native int getUserId();
+
+    public final native void setUserId(int v);
+
+    public final native String getUserName();
+
+    public final native void setUserName(String v);
+
+    public final native String getProcessPath();
+
+    public final native void setProcessPath(String v);
+
+    public final native String getAndroidPackageName();
+
+    public final native void setAndroidPackageName(String v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    ConnectionOwner(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public ConnectionOwner() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof ConnectionOwner)) {
+            return false;
+        }
+        ConnectionOwner that = (ConnectionOwner) o;
+        int thisUserId = getUserId();
+        int thatUserId = that.getUserId();
+        if (thisUserId != thatUserId) {
+            return false;
+        }
+        String thisUserName = getUserName();
+        String thatUserName = that.getUserName();
+        if (thisUserName == null) {
+            if (thatUserName != null) {
+                return false;
+            }
+        } else if (!thisUserName.equals(thatUserName)) {
+            return false;
+        }
+        String thisProcessPath = getProcessPath();
+        String thatProcessPath = that.getProcessPath();
+        if (thisProcessPath == null) {
+            if (thatProcessPath != null) {
+                return false;
+            }
+        } else if (!thisProcessPath.equals(thatProcessPath)) {
+            return false;
+        }
+        String thisAndroidPackageName = getAndroidPackageName();
+        String thatAndroidPackageName = that.getAndroidPackageName();
+        if (thisAndroidPackageName == null) {
+            if (thatAndroidPackageName != null) {
+                return false;
+            }
+            return true;
+        }
+        if (!thisAndroidPackageName.equals(thatAndroidPackageName)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{Integer.valueOf(getUserId()), getUserName(), getProcessPath(), getAndroidPackageName()});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("ConnectionOwner").append("{");
+        b.append("UserId:").append(getUserId()).append(",");
+        b.append("UserName:").append(getUserName()).append(",");
+        b.append("ProcessPath:").append(getProcessPath()).append(",");
+        b.append("AndroidPackageName:").append(getAndroidPackageName()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Connections.class */
+public final class Connections implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __NewConnections();
+
+    public native void applyEvents(ConnectionEvents events);
+
+    public native void filterState(int state);
+
+    public native ConnectionIterator iterator();
+
+    public native void sortByDate();
+
+    public native void sortByTraffic();
+
+    public native void sortByTrafficTotal();
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    public Connections() {
+        this.refnum = __NewConnections();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    Connections(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof Connections)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[0]);
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("Connections").append("{");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/DeprecatedNote.class */
+public final class DeprecatedNote implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native String getName();
+
+    public final native void setName(String v);
+
+    public final native String getDescription();
+
+    public final native void setDescription(String v);
+
+    public final native String getDeprecatedVersion();
+
+    public final native void setDeprecatedVersion(String v);
+
+    public final native String getScheduledVersion();
+
+    public final native void setScheduledVersion(String v);
+
+    public final native String getEnvName();
+
+    public final native void setEnvName(String v);
+
+    public final native String getMigrationLink();
+
+    public final native void setMigrationLink(String v);
+
+    public native boolean impending();
+
+    public native String message();
+
+    public native String messageWithLink();
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    DeprecatedNote(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public DeprecatedNote() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof DeprecatedNote)) {
+            return false;
+        }
+        DeprecatedNote that = (DeprecatedNote) o;
+        String thisName = getName();
+        String thatName = that.getName();
+        if (thisName == null) {
+            if (thatName != null) {
+                return false;
+            }
+        } else if (!thisName.equals(thatName)) {
+            return false;
+        }
+        String thisDescription = getDescription();
+        String thatDescription = that.getDescription();
+        if (thisDescription == null) {
+            if (thatDescription != null) {
+                return false;
+            }
+        } else if (!thisDescription.equals(thatDescription)) {
+            return false;
+        }
+        String thisDeprecatedVersion = getDeprecatedVersion();
+        String thatDeprecatedVersion = that.getDeprecatedVersion();
+        if (thisDeprecatedVersion == null) {
+            if (thatDeprecatedVersion != null) {
+                return false;
+            }
+        } else if (!thisDeprecatedVersion.equals(thatDeprecatedVersion)) {
+            return false;
+        }
+        String thisScheduledVersion = getScheduledVersion();
+        String thatScheduledVersion = that.getScheduledVersion();
+        if (thisScheduledVersion == null) {
+            if (thatScheduledVersion != null) {
+                return false;
+            }
+        } else if (!thisScheduledVersion.equals(thatScheduledVersion)) {
+            return false;
+        }
+        String thisEnvName = getEnvName();
+        String thatEnvName = that.getEnvName();
+        if (thisEnvName == null) {
+            if (thatEnvName != null) {
+                return false;
+            }
+        } else if (!thisEnvName.equals(thatEnvName)) {
+            return false;
+        }
+        String thisMigrationLink = getMigrationLink();
+        String thatMigrationLink = that.getMigrationLink();
+        if (thisMigrationLink == null) {
+            if (thatMigrationLink != null) {
+                return false;
+            }
+            return true;
+        }
+        if (!thisMigrationLink.equals(thatMigrationLink)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getName(), getDescription(), getDeprecatedVersion(), getScheduledVersion(), getEnvName(), getMigrationLink()});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("DeprecatedNote").append("{");
+        b.append("Name:").append(getName()).append(",");
+        b.append("Description:").append(getDescription()).append(",");
+        b.append("DeprecatedVersion:").append(getDeprecatedVersion()).append(",");
+        b.append("ScheduledVersion:").append(getScheduledVersion()).append(",");
+        b.append("EnvName:").append(getEnvName()).append(",");
+        b.append("MigrationLink:").append(getMigrationLink()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/DeprecatedNoteIterator.class */
+public interface DeprecatedNoteIterator {
+    boolean hasNext();
+
+    DeprecatedNote next();
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ErrorMessage.class */
+public final class ErrorMessage implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native String getMessage();
+
+    public final native void setMessage(String v);
+
+    public native byte[] encode();
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    ErrorMessage(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public ErrorMessage() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof ErrorMessage)) {
+            return false;
+        }
+        ErrorMessage that = (ErrorMessage) o;
+        String thisMessage = getMessage();
+        String thatMessage = that.getMessage();
+        if (thisMessage == null) {
+            if (thatMessage != null) {
+                return false;
+            }
+            return true;
+        }
+        if (!thisMessage.equals(thatMessage)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getMessage()});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("ErrorMessage").append("{");
+        b.append("Message:").append(getMessage()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ExchangeContext.class */
+public final class ExchangeContext implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public native void errnoCode(int code);
+
+    public native void errorCode(int code);
+
+    public native void onCancel(Func callback);
+
+    public native void rawSuccess(byte[] result);
+
+    public native void success(String result);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    ExchangeContext(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public ExchangeContext() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof ExchangeContext)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[0]);
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("ExchangeContext").append("{");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Func.class */
+public interface Func {
+    void invoke() throws Exception;
+}
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/HTTPClient.class */
+public interface HTTPClient {
+    void close();
+
+    void keepAlive();
+
+    void modernTLS();
+
+    HTTPRequest newRequest();
+
+    void pinnedSHA256(String sumHex);
+
+    void pinnedTLS12();
+
+    void restrictedTLS();
+
+    void trySocks5(int port);
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/HTTPRequest.class */
+public interface HTTPRequest {
+    HTTPResponse execute() throws Exception;
+
+    void randomUserAgent();
+
+    void setContent(byte[] content);
+
+    void setContentString(String content);
+
+    void setHeader(String key, String value);
+
+    void setMethod(String method);
+
+    void setURL(String link) throws Exception;
+
+    void setUserAgent(String userAgent);
+}
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/HTTPResponse.class */
+public interface HTTPResponse {
+    StringBox getContent() throws Exception;
+
+    void writeTo(String path) throws Exception;
+}
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ImportRemoteProfile.class */
+public final class ImportRemoteProfile implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native String getName();
+
+    public final native void setName(String v);
+
+    public final native String getURL();
+
+    public final native void setURL(String v);
+
+    public final native String getHost();
+
+    public final native void setHost(String v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    ImportRemoteProfile(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public ImportRemoteProfile() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof ImportRemoteProfile)) {
+            return false;
+        }
+        ImportRemoteProfile that = (ImportRemoteProfile) o;
+        String thisName = getName();
+        String thatName = that.getName();
+        if (thisName == null) {
+            if (thatName != null) {
+                return false;
+            }
+        } else if (!thisName.equals(thatName)) {
+            return false;
+        }
+        String thisURL = getURL();
+        String thatURL = that.getURL();
+        if (thisURL == null) {
+            if (thatURL != null) {
+                return false;
+            }
+        } else if (!thisURL.equals(thatURL)) {
+            return false;
+        }
+        String thisHost = getHost();
+        String thatHost = that.getHost();
+        if (thisHost == null) {
+            if (thatHost != null) {
+                return false;
+            }
+            return true;
+        }
+        if (!thisHost.equals(thatHost)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getName(), getURL(), getHost()});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("ImportRemoteProfile").append("{");
+        b.append("Name:").append(getName()).append(",");
+        b.append("URL:").append(getURL()).append(",");
+        b.append("Host:").append(getHost()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Int32Iterator.class */
+public interface Int32Iterator {
+    boolean hasNext();
+
+    int len();
+
+    int next();
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/InterfaceUpdateListener.class */
+public interface InterfaceUpdateListener {
+    void updateDefaultInterface(String interfaceName, int interfaceIndex, boolean isExpensive, boolean isConstrained);
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox.class */
+public abstract class Libbox {
+    public static final int CommandClashMode = 3;
+    public static final int CommandConnections = 4;
+    public static final int CommandGroup = 2;
+    public static final int CommandLog = 0;
+    public static final int CommandStatus = 1;
+    public static final long ConnectionEventClosed = 2;
+    public static final long ConnectionEventNew = 0;
+    public static final long ConnectionEventUpdate = 1;
+    public static final long ConnectionStateActive = 1;
+    public static final long ConnectionStateAll = 0;
+    public static final long ConnectionStateClosed = 2;
+    public static final int InterfaceTypeCellular = 1;
+    public static final int InterfaceTypeEthernet = 2;
+    public static final int InterfaceTypeOther = 3;
+    public static final int InterfaceTypeWIFI = 0;
+    public static final long MessageTypeError = 0;
+    public static final long MessageTypeProfileContent = 3;
+    public static final long MessageTypeProfileContentRequest = 2;
+    public static final long MessageTypeProfileList = 1;
+    public static final int ProfileTypeLocal = 0;
+    public static final int ProfileTypeRemote = 2;
+    public static final int ProfileTypeiCloud = 1;
+
+    private static native void _init();
+
+    public static native int availablePort(int startPort) throws Exception;
+
+    public static native void checkConfig(String configContent) throws Exception;
+
+    public static native ErrorMessage decodeErrorMessage(byte[] data) throws Exception;
+
+    public static native int decodeLengthChunk(byte[] data);
+
+    public static native ProfileContent decodeProfileContent(byte[] data) throws Exception;
+
+    public static native ProfileContentRequest decodeProfileContentRequest(byte[] data) throws Exception;
+
+    public static native byte[] encodeChunkedMessage(byte[] data);
+
+    public static native String formatBytes(long length);
+
+    public static native StringBox formatConfig(String configContent) throws Exception;
+
+    public static native String formatDuration(long duration);
+
+    public static native String formatMemoryBytes(long length);
+
+    public static native String generateRemoteProfileImportLink(String name, String remoteURL);
+
+    public static native CommandClient newCommandClient(CommandClientHandler handler, CommandClientOptions options);
+
+    public static native CommandServer newCommandServer(CommandServerHandler handler, PlatformInterface platformInterface) throws Exception;
+
+    public static native Connections newConnections();
+
+    public static native HTTPClient newHTTPClient();
+
+    public static native PProfServer newPProfServer(long port);
+
+    public static native CommandClient newStandaloneCommandClient();
+
+    public static native WIFIState newWIFIState(String wifiSSID, String wifiBSSID);
+
+    public static native ImportRemoteProfile parseRemoteProfileImportLink(String importLink) throws Exception;
+
+    public static native String proxyDisplayType(String proxyType);
+
+    public static native StringBox randomHex(int length);
+
+    public static native AndroidVPNType readAndroidVPNType(StringIterator publicSourceDirList) throws Exception;
+
+    public static native void redirectStderr(String path) throws Exception;
+
+    public static native void setLocale(String localeId);
+
+    public static native void setMemoryLimit(boolean enabled);
+
+    public static native void setXPCDialer(XPCDialer dialer);
+
+    public static native void setup(SetupOptions options) throws Exception;
+
+    public static native String version();
+
+    static {
+        Seq.touch();
+        _init();
+    }
+
+    private Libbox() {
+    }
+
+    public static void touch() {
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyCommandClientHandler.class */
+    private static final class proxyCommandClientHandler implements Seq.Proxy, CommandClientHandler {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.CommandClientHandler
+        public native void clearLogs();
+
+        @Override // com.hiddify.core.libbox.CommandClientHandler
+        public native void connected();
+
+        @Override // com.hiddify.core.libbox.CommandClientHandler
+        public native void disconnected(String message);
+
+        @Override // com.hiddify.core.libbox.CommandClientHandler
+        public native void initializeClashMode(StringIterator modeList, String currentMode);
+
+        @Override // com.hiddify.core.libbox.CommandClientHandler
+        public native void setDefaultLogLevel(int level);
+
+        @Override // com.hiddify.core.libbox.CommandClientHandler
+        public native void updateClashMode(String newMode);
+
+        @Override // com.hiddify.core.libbox.CommandClientHandler
+        public native void writeConnectionEvents(ConnectionEvents events);
+
+        @Override // com.hiddify.core.libbox.CommandClientHandler
+        public native void writeGroups(OutboundGroupIterator message);
+
+        @Override // com.hiddify.core.libbox.CommandClientHandler
+        public native void writeLogs(LogIterator messageList);
+
+        @Override // com.hiddify.core.libbox.CommandClientHandler
+        public native void writeStatus(StatusMessage message);
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyCommandClientHandler(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyCommandServerHandler.class */
+    private static final class proxyCommandServerHandler implements Seq.Proxy, CommandServerHandler {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.CommandServerHandler
+        public native SystemProxyStatus getSystemProxyStatus() throws Exception;
+
+        @Override // com.hiddify.core.libbox.CommandServerHandler
+        public native void serviceReload() throws Exception;
+
+        @Override // com.hiddify.core.libbox.CommandServerHandler
+        public native void serviceStop() throws Exception;
+
+        @Override // com.hiddify.core.libbox.CommandServerHandler
+        public native void setSystemProxyEnabled(boolean enabled) throws Exception;
+
+        @Override // com.hiddify.core.libbox.CommandServerHandler
+        public native void writeDebugMessage(String message);
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyCommandServerHandler(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyConnectionEventIterator.class */
+    private static final class proxyConnectionEventIterator implements Seq.Proxy, ConnectionEventIterator {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.ConnectionEventIterator
+        public native boolean hasNext();
+
+        @Override // com.hiddify.core.libbox.ConnectionEventIterator
+        public native ConnectionEvent next();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyConnectionEventIterator(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyConnectionIterator.class */
+    private static final class proxyConnectionIterator implements Seq.Proxy, ConnectionIterator {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.ConnectionIterator
+        public native boolean hasNext();
+
+        @Override // com.hiddify.core.libbox.ConnectionIterator
+        public native Connection next();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyConnectionIterator(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyDeprecatedNoteIterator.class */
+    private static final class proxyDeprecatedNoteIterator implements Seq.Proxy, DeprecatedNoteIterator {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.DeprecatedNoteIterator
+        public native boolean hasNext();
+
+        @Override // com.hiddify.core.libbox.DeprecatedNoteIterator
+        public native DeprecatedNote next();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyDeprecatedNoteIterator(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyFunc.class */
+    private static final class proxyFunc implements Seq.Proxy, Func {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.Func
+        public native void invoke() throws Exception;
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyFunc(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyHTTPClient.class */
+    private static final class proxyHTTPClient implements Seq.Proxy, HTTPClient {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.HTTPClient
+        public native void close();
+
+        @Override // com.hiddify.core.libbox.HTTPClient
+        public native void keepAlive();
+
+        @Override // com.hiddify.core.libbox.HTTPClient
+        public native void modernTLS();
+
+        @Override // com.hiddify.core.libbox.HTTPClient
+        public native HTTPRequest newRequest();
+
+        @Override // com.hiddify.core.libbox.HTTPClient
+        public native void pinnedSHA256(String sumHex);
+
+        @Override // com.hiddify.core.libbox.HTTPClient
+        public native void pinnedTLS12();
+
+        @Override // com.hiddify.core.libbox.HTTPClient
+        public native void restrictedTLS();
+
+        @Override // com.hiddify.core.libbox.HTTPClient
+        public native void trySocks5(int port);
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyHTTPClient(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyHTTPRequest.class */
+    private static final class proxyHTTPRequest implements Seq.Proxy, HTTPRequest {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.HTTPRequest
+        public native HTTPResponse execute() throws Exception;
+
+        @Override // com.hiddify.core.libbox.HTTPRequest
+        public native void randomUserAgent();
+
+        @Override // com.hiddify.core.libbox.HTTPRequest
+        public native void setContent(byte[] content);
+
+        @Override // com.hiddify.core.libbox.HTTPRequest
+        public native void setContentString(String content);
+
+        @Override // com.hiddify.core.libbox.HTTPRequest
+        public native void setHeader(String key, String value);
+
+        @Override // com.hiddify.core.libbox.HTTPRequest
+        public native void setMethod(String method);
+
+        @Override // com.hiddify.core.libbox.HTTPRequest
+        public native void setURL(String link) throws Exception;
+
+        @Override // com.hiddify.core.libbox.HTTPRequest
+        public native void setUserAgent(String userAgent);
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyHTTPRequest(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyHTTPResponse.class */
+    private static final class proxyHTTPResponse implements Seq.Proxy, HTTPResponse {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.HTTPResponse
+        public native StringBox getContent() throws Exception;
+
+        @Override // com.hiddify.core.libbox.HTTPResponse
+        public native void writeTo(String path) throws Exception;
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyHTTPResponse(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyInt32Iterator.class */
+    private static final class proxyInt32Iterator implements Seq.Proxy, Int32Iterator {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.Int32Iterator
+        public native boolean hasNext();
+
+        @Override // com.hiddify.core.libbox.Int32Iterator
+        public native int len();
+
+        @Override // com.hiddify.core.libbox.Int32Iterator
+        public native int next();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyInt32Iterator(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyInterfaceUpdateListener.class */
+    private static final class proxyInterfaceUpdateListener implements Seq.Proxy, InterfaceUpdateListener {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.InterfaceUpdateListener
+        public native void updateDefaultInterface(String interfaceName, int interfaceIndex, boolean isExpensive, boolean isConstrained);
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyInterfaceUpdateListener(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyLocalDNSTransport.class */
+    private static final class proxyLocalDNSTransport implements Seq.Proxy, LocalDNSTransport {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.LocalDNSTransport
+        public native void exchange(ExchangeContext ctx, byte[] message) throws Exception;
+
+        @Override // com.hiddify.core.libbox.LocalDNSTransport
+        public native void lookup(ExchangeContext ctx, String network, String domain) throws Exception;
+
+        @Override // com.hiddify.core.libbox.LocalDNSTransport
+        public native boolean raw();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyLocalDNSTransport(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyLogIterator.class */
+    private static final class proxyLogIterator implements Seq.Proxy, LogIterator {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.LogIterator
+        public native boolean hasNext();
+
+        @Override // com.hiddify.core.libbox.LogIterator
+        public native int len();
+
+        @Override // com.hiddify.core.libbox.LogIterator
+        public native LogEntry next();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyLogIterator(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyNetworkInterfaceIterator.class */
+    private static final class proxyNetworkInterfaceIterator implements Seq.Proxy, NetworkInterfaceIterator {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.NetworkInterfaceIterator
+        public native boolean hasNext();
+
+        @Override // com.hiddify.core.libbox.NetworkInterfaceIterator
+        public native NetworkInterface next();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyNetworkInterfaceIterator(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyOnDemandRule.class */
+    private static final class proxyOnDemandRule implements Seq.Proxy, OnDemandRule {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.OnDemandRule
+        public native StringIterator dnsSearchDomainMatch();
+
+        @Override // com.hiddify.core.libbox.OnDemandRule
+        public native StringIterator dnsServerAddressMatch();
+
+        @Override // com.hiddify.core.libbox.OnDemandRule
+        public native int interfaceTypeMatch();
+
+        @Override // com.hiddify.core.libbox.OnDemandRule
+        public native String probeURL();
+
+        @Override // com.hiddify.core.libbox.OnDemandRule
+        public native StringIterator ssidMatch();
+
+        @Override // com.hiddify.core.libbox.OnDemandRule
+        public native int target();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyOnDemandRule(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyOnDemandRuleIterator.class */
+    private static final class proxyOnDemandRuleIterator implements Seq.Proxy, OnDemandRuleIterator {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.OnDemandRuleIterator
+        public native boolean hasNext();
+
+        @Override // com.hiddify.core.libbox.OnDemandRuleIterator
+        public native OnDemandRule next();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyOnDemandRuleIterator(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyOutboundGroupItemIterator.class */
+    private static final class proxyOutboundGroupItemIterator implements Seq.Proxy, OutboundGroupItemIterator {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.OutboundGroupItemIterator
+        public native boolean hasNext();
+
+        @Override // com.hiddify.core.libbox.OutboundGroupItemIterator
+        public native OutboundGroupItem next();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyOutboundGroupItemIterator(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyOutboundGroupIterator.class */
+    private static final class proxyOutboundGroupIterator implements Seq.Proxy, OutboundGroupIterator {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.OutboundGroupIterator
+        public native boolean hasNext();
+
+        @Override // com.hiddify.core.libbox.OutboundGroupIterator
+        public native OutboundGroup next();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyOutboundGroupIterator(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyPlatformInterface.class */
+    private static final class proxyPlatformInterface implements Seq.Proxy, PlatformInterface {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native void autoDetectInterfaceControl(int fd) throws Exception;
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native void clearDNSCache();
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native void closeDefaultInterfaceMonitor(InterfaceUpdateListener listener) throws Exception;
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native ConnectionOwner findConnectionOwner(int ipProtocol, String sourceAddress, int sourcePort, String destinationAddress, int destinationPort) throws Exception;
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native NetworkInterfaceIterator getInterfaces() throws Exception;
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native boolean includeAllNetworks();
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native LocalDNSTransport localDNSTransport();
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native int openTun(TunOptions options) throws Exception;
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native WIFIState readWIFIState();
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native void sendNotification(Notification notification) throws Exception;
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native void startDefaultInterfaceMonitor(InterfaceUpdateListener listener) throws Exception;
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native StringIterator systemCertificates();
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native boolean underNetworkExtension();
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native boolean usePlatformAutoDetectInterfaceControl();
+
+        @Override // com.hiddify.core.libbox.PlatformInterface
+        public native boolean useProcFS();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyPlatformInterface(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyProfilePreviewIterator.class */
+    private static final class proxyProfilePreviewIterator implements Seq.Proxy, ProfilePreviewIterator {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.ProfilePreviewIterator
+        public native boolean hasNext();
+
+        @Override // com.hiddify.core.libbox.ProfilePreviewIterator
+        public native ProfilePreview next();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyProfilePreviewIterator(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyRoutePrefixIterator.class */
+    private static final class proxyRoutePrefixIterator implements Seq.Proxy, RoutePrefixIterator {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.RoutePrefixIterator
+        public native boolean hasNext();
+
+        @Override // com.hiddify.core.libbox.RoutePrefixIterator
+        public native RoutePrefix next();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyRoutePrefixIterator(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyStringIterator.class */
+    private static final class proxyStringIterator implements Seq.Proxy, StringIterator {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.StringIterator
+        public native boolean hasNext();
+
+        @Override // com.hiddify.core.libbox.StringIterator
+        public native int len();
+
+        @Override // com.hiddify.core.libbox.StringIterator
+        public native String next();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyStringIterator(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyTunOptions.class */
+    private static final class proxyTunOptions implements Seq.Proxy, TunOptions {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native boolean getAutoRoute();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native StringBox getDNSServerAddress() throws Exception;
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native StringIterator getExcludePackage();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native StringIterator getHTTPProxyBypassDomain();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native StringIterator getHTTPProxyMatchDomain();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native String getHTTPProxyServer();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native int getHTTPProxyServerPort();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native StringIterator getIncludePackage();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native RoutePrefixIterator getInet4Address();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native RoutePrefixIterator getInet4RouteAddress();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native RoutePrefixIterator getInet4RouteExcludeAddress();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native RoutePrefixIterator getInet4RouteRange();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native RoutePrefixIterator getInet6Address();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native RoutePrefixIterator getInet6RouteAddress();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native RoutePrefixIterator getInet6RouteExcludeAddress();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native RoutePrefixIterator getInet6RouteRange();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native int getMTU();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native boolean getStrictRoute();
+
+        @Override // com.hiddify.core.libbox.TunOptions
+        public native boolean isHTTPProxyEnabled();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyTunOptions(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Libbox$proxyXPCDialer.class */
+    private static final class proxyXPCDialer implements Seq.Proxy, XPCDialer {
+        public final int refnum;
+
+        @Override // com.hiddify.core.libbox.XPCDialer
+        public native int dialXPC() throws Exception;
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyXPCDialer(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/LocalDNSTransport.class */
+public interface LocalDNSTransport {
+    void exchange(ExchangeContext ctx, byte[] message) throws Exception;
+
+    void lookup(ExchangeContext ctx, String network, String domain) throws Exception;
+
+    boolean raw();
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/LogEntry.class */
+public final class LogEntry implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native int getLevel();
+
+    public final native void setLevel(int v);
+
+    public final native String getMessage();
+
+    public final native void setMessage(String v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    LogEntry(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public LogEntry() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof LogEntry)) {
+            return false;
+        }
+        LogEntry that = (LogEntry) o;
+        int thisLevel = getLevel();
+        int thatLevel = that.getLevel();
+        if (thisLevel != thatLevel) {
+            return false;
+        }
+        String thisMessage = getMessage();
+        String thatMessage = that.getMessage();
+        if (thisMessage == null) {
+            if (thatMessage != null) {
+                return false;
+            }
+            return true;
+        }
+        if (!thisMessage.equals(thatMessage)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{Integer.valueOf(getLevel()), getMessage()});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("LogEntry").append("{");
+        b.append("Level:").append(getLevel()).append(",");
+        b.append("Message:").append(getMessage()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/LogIterator.class */
+public interface LogIterator {
+    boolean hasNext();
+
+    int len();
+
+    LogEntry next();
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/NetworkInterface.class */
+public final class NetworkInterface implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native int getIndex();
+
+    public final native void setIndex(int v);
+
+    public final native int getMTU();
+
+    public final native void setMTU(int v);
+
+    public final native String getName();
+
+    public final native void setName(String v);
+
+    public final native StringIterator getAddresses();
+
+    public final native void setAddresses(StringIterator v);
+
+    public final native int getFlags();
+
+    public final native void setFlags(int v);
+
+    public final native int getType();
+
+    public final native void setType(int v);
+
+    public final native StringIterator getDNSServer();
+
+    public final native void setDNSServer(StringIterator v);
+
+    public final native boolean getMetered();
+
+    public final native void setMetered(boolean v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    NetworkInterface(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public NetworkInterface() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof NetworkInterface)) {
+            return false;
+        }
+        NetworkInterface that = (NetworkInterface) o;
+        int thisIndex = getIndex();
+        int thatIndex = that.getIndex();
+        if (thisIndex != thatIndex) {
+            return false;
+        }
+        int thisMTU = getMTU();
+        int thatMTU = that.getMTU();
+        if (thisMTU != thatMTU) {
+            return false;
+        }
+        String thisName = getName();
+        String thatName = that.getName();
+        if (thisName == null) {
+            if (thatName != null) {
+                return false;
+            }
+        } else if (!thisName.equals(thatName)) {
+            return false;
+        }
+        StringIterator thisAddresses = getAddresses();
+        StringIterator thatAddresses = that.getAddresses();
+        if (thisAddresses == null) {
+            if (thatAddresses != null) {
+                return false;
+            }
+        } else if (!thisAddresses.equals(thatAddresses)) {
+            return false;
+        }
+        int thisFlags = getFlags();
+        int thatFlags = that.getFlags();
+        if (thisFlags != thatFlags) {
+            return false;
+        }
+        int thisType = getType();
+        int thatType = that.getType();
+        if (thisType != thatType) {
+            return false;
+        }
+        StringIterator thisDNSServer = getDNSServer();
+        StringIterator thatDNSServer = that.getDNSServer();
+        if (thisDNSServer == null) {
+            if (thatDNSServer != null) {
+                return false;
+            }
+        } else if (!thisDNSServer.equals(thatDNSServer)) {
+            return false;
+        }
+        boolean thisMetered = getMetered();
+        boolean thatMetered = that.getMetered();
+        if (thisMetered != thatMetered) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{Integer.valueOf(getIndex()), Integer.valueOf(getMTU()), getName(), getAddresses(), Integer.valueOf(getFlags()), Integer.valueOf(getType()), getDNSServer(), Boolean.valueOf(getMetered())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("NetworkInterface").append("{");
+        b.append("Index:").append(getIndex()).append(",");
+        b.append("MTU:").append(getMTU()).append(",");
+        b.append("Name:").append(getName()).append(",");
+        b.append("Addresses:").append(getAddresses()).append(",");
+        b.append("Flags:").append(getFlags()).append(",");
+        b.append("Type:").append(getType()).append(",");
+        b.append("DNSServer:").append(getDNSServer()).append(",");
+        b.append("Metered:").append(getMetered()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/NetworkInterfaceIterator.class */
+public interface NetworkInterfaceIterator {
+    boolean hasNext();
+
+    NetworkInterface next();
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/Notification.class */
+public final class Notification implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native String getIdentifier();
+
+    public final native void setIdentifier(String v);
+
+    public final native String getTypeName();
+
+    public final native void setTypeName(String v);
+
+    public final native int getTypeID();
+
+    public final native void setTypeID(int v);
+
+    public final native String getTitle();
+
+    public final native void setTitle(String v);
+
+    public final native String getSubtitle();
+
+    public final native void setSubtitle(String v);
+
+    public final native String getBody();
+
+    public final native void setBody(String v);
+
+    public final native String getOpenURL();
+
+    public final native void setOpenURL(String v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    Notification(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public Notification() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof Notification)) {
+            return false;
+        }
+        Notification that = (Notification) o;
+        String thisIdentifier = getIdentifier();
+        String thatIdentifier = that.getIdentifier();
+        if (thisIdentifier == null) {
+            if (thatIdentifier != null) {
+                return false;
+            }
+        } else if (!thisIdentifier.equals(thatIdentifier)) {
+            return false;
+        }
+        String thisTypeName = getTypeName();
+        String thatTypeName = that.getTypeName();
+        if (thisTypeName == null) {
+            if (thatTypeName != null) {
+                return false;
+            }
+        } else if (!thisTypeName.equals(thatTypeName)) {
+            return false;
+        }
+        int thisTypeID = getTypeID();
+        int thatTypeID = that.getTypeID();
+        if (thisTypeID != thatTypeID) {
+            return false;
+        }
+        String thisTitle = getTitle();
+        String thatTitle = that.getTitle();
+        if (thisTitle == null) {
+            if (thatTitle != null) {
+                return false;
+            }
+        } else if (!thisTitle.equals(thatTitle)) {
+            return false;
+        }
+        String thisSubtitle = getSubtitle();
+        String thatSubtitle = that.getSubtitle();
+        if (thisSubtitle == null) {
+            if (thatSubtitle != null) {
+                return false;
+            }
+        } else if (!thisSubtitle.equals(thatSubtitle)) {
+            return false;
+        }
+        String thisBody = getBody();
+        String thatBody = that.getBody();
+        if (thisBody == null) {
+            if (thatBody != null) {
+                return false;
+            }
+        } else if (!thisBody.equals(thatBody)) {
+            return false;
+        }
+        String thisOpenURL = getOpenURL();
+        String thatOpenURL = that.getOpenURL();
+        if (thisOpenURL == null) {
+            if (thatOpenURL != null) {
+                return false;
+            }
+            return true;
+        }
+        if (!thisOpenURL.equals(thatOpenURL)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getIdentifier(), getTypeName(), Integer.valueOf(getTypeID()), getTitle(), getSubtitle(), getBody(), getOpenURL()});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("Notification").append("{");
+        b.append("Identifier:").append(getIdentifier()).append(",");
+        b.append("TypeName:").append(getTypeName()).append(",");
+        b.append("TypeID:").append(getTypeID()).append(",");
+        b.append("Title:").append(getTitle()).append(",");
+        b.append("Subtitle:").append(getSubtitle()).append(",");
+        b.append("Body:").append(getBody()).append(",");
+        b.append("OpenURL:").append(getOpenURL()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/OnDemandRule.class */
+public interface OnDemandRule {
+    StringIterator dnsSearchDomainMatch();
+
+    StringIterator dnsServerAddressMatch();
+
+    int interfaceTypeMatch();
+
+    String probeURL();
+
+    StringIterator ssidMatch();
+
+    int target();
+}
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/OnDemandRuleIterator.class */
+public interface OnDemandRuleIterator {
+    boolean hasNext();
+
+    OnDemandRule next();
+}
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/OutboundGroup.class */
+public final class OutboundGroup implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native String getTag();
+
+    public final native void setTag(String v);
+
+    public final native String getType();
+
+    public final native void setType(String v);
+
+    public final native boolean getSelectable();
+
+    public final native void setSelectable(boolean v);
+
+    public final native String getSelected();
+
+    public final native void setSelected(String v);
+
+    public final native boolean getIsExpand();
+
+    public final native void setIsExpand(boolean v);
+
+    public native OutboundGroupItemIterator getItems();
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    OutboundGroup(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public OutboundGroup() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof OutboundGroup)) {
+            return false;
+        }
+        OutboundGroup that = (OutboundGroup) o;
+        String thisTag = getTag();
+        String thatTag = that.getTag();
+        if (thisTag == null) {
+            if (thatTag != null) {
+                return false;
+            }
+        } else if (!thisTag.equals(thatTag)) {
+            return false;
+        }
+        String thisType = getType();
+        String thatType = that.getType();
+        if (thisType == null) {
+            if (thatType != null) {
+                return false;
+            }
+        } else if (!thisType.equals(thatType)) {
+            return false;
+        }
+        boolean thisSelectable = getSelectable();
+        boolean thatSelectable = that.getSelectable();
+        if (thisSelectable != thatSelectable) {
+            return false;
+        }
+        String thisSelected = getSelected();
+        String thatSelected = that.getSelected();
+        if (thisSelected == null) {
+            if (thatSelected != null) {
+                return false;
+            }
+        } else if (!thisSelected.equals(thatSelected)) {
+            return false;
+        }
+        boolean thisIsExpand = getIsExpand();
+        boolean thatIsExpand = that.getIsExpand();
+        if (thisIsExpand != thatIsExpand) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getTag(), getType(), Boolean.valueOf(getSelectable()), getSelected(), Boolean.valueOf(getIsExpand())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("OutboundGroup").append("{");
+        b.append("Tag:").append(getTag()).append(",");
+        b.append("Type:").append(getType()).append(",");
+        b.append("Selectable:").append(getSelectable()).append(",");
+        b.append("Selected:").append(getSelected()).append(",");
+        b.append("IsExpand:").append(getIsExpand()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/OutboundGroupItem.class */
+public final class OutboundGroupItem implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native String getTag();
+
+    public final native void setTag(String v);
+
+    public final native String getType();
+
+    public final native void setType(String v);
+
+    public final native long getURLTestTime();
+
+    public final native void setURLTestTime(long v);
+
+    public final native int getURLTestDelay();
+
+    public final native void setURLTestDelay(int v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    OutboundGroupItem(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public OutboundGroupItem() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof OutboundGroupItem)) {
+            return false;
+        }
+        OutboundGroupItem that = (OutboundGroupItem) o;
+        String thisTag = getTag();
+        String thatTag = that.getTag();
+        if (thisTag == null) {
+            if (thatTag != null) {
+                return false;
+            }
+        } else if (!thisTag.equals(thatTag)) {
+            return false;
+        }
+        String thisType = getType();
+        String thatType = that.getType();
+        if (thisType == null) {
+            if (thatType != null) {
+                return false;
+            }
+        } else if (!thisType.equals(thatType)) {
+            return false;
+        }
+        long thisURLTestTime = getURLTestTime();
+        long thatURLTestTime = that.getURLTestTime();
+        if (thisURLTestTime != thatURLTestTime) {
+            return false;
+        }
+        int thisURLTestDelay = getURLTestDelay();
+        int thatURLTestDelay = that.getURLTestDelay();
+        if (thisURLTestDelay != thatURLTestDelay) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getTag(), getType(), Long.valueOf(getURLTestTime()), Integer.valueOf(getURLTestDelay())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("OutboundGroupItem").append("{");
+        b.append("Tag:").append(getTag()).append(",");
+        b.append("Type:").append(getType()).append(",");
+        b.append("URLTestTime:").append(getURLTestTime()).append(",");
+        b.append("URLTestDelay:").append(getURLTestDelay()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/OutboundGroupItemIterator.class */
+public interface OutboundGroupItemIterator {
+    boolean hasNext();
+
+    OutboundGroupItem next();
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/OutboundGroupIterator.class */
+public interface OutboundGroupIterator {
+    boolean hasNext();
+
+    OutboundGroup next();
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/OverrideOptions.class */
+public final class OverrideOptions implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native boolean getAutoRedirect();
+
+    public final native void setAutoRedirect(boolean v);
+
+    public final native StringIterator getIncludePackage();
+
+    public final native void setIncludePackage(StringIterator v);
+
+    public final native StringIterator getExcludePackage();
+
+    public final native void setExcludePackage(StringIterator v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    OverrideOptions(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public OverrideOptions() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof OverrideOptions)) {
+            return false;
+        }
+        OverrideOptions that = (OverrideOptions) o;
+        boolean thisAutoRedirect = getAutoRedirect();
+        boolean thatAutoRedirect = that.getAutoRedirect();
+        if (thisAutoRedirect != thatAutoRedirect) {
+            return false;
+        }
+        StringIterator thisIncludePackage = getIncludePackage();
+        StringIterator thatIncludePackage = that.getIncludePackage();
+        if (thisIncludePackage == null) {
+            if (thatIncludePackage != null) {
+                return false;
+            }
+        } else if (!thisIncludePackage.equals(thatIncludePackage)) {
+            return false;
+        }
+        StringIterator thisExcludePackage = getExcludePackage();
+        StringIterator thatExcludePackage = that.getExcludePackage();
+        if (thisExcludePackage == null) {
+            if (thatExcludePackage != null) {
+                return false;
+            }
+            return true;
+        }
+        if (!thisExcludePackage.equals(thatExcludePackage)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{Boolean.valueOf(getAutoRedirect()), getIncludePackage(), getExcludePackage()});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("OverrideOptions").append("{");
+        b.append("AutoRedirect:").append(getAutoRedirect()).append(",");
+        b.append("IncludePackage:").append(getIncludePackage()).append(",");
+        b.append("ExcludePackage:").append(getExcludePackage()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/PlatformInterface.class */
+public interface PlatformInterface {
+    void autoDetectInterfaceControl(int fd) throws Exception;
+
+    void clearDNSCache();
+
+    void closeDefaultInterfaceMonitor(InterfaceUpdateListener listener) throws Exception;
+
+    ConnectionOwner findConnectionOwner(int ipProtocol, String sourceAddress, int sourcePort, String destinationAddress, int destinationPort) throws Exception;
+
+    NetworkInterfaceIterator getInterfaces() throws Exception;
+
+    boolean includeAllNetworks();
+
+    LocalDNSTransport localDNSTransport();
+
+    int openTun(TunOptions options) throws Exception;
+
+    WIFIState readWIFIState();
+
+    void sendNotification(Notification notification) throws Exception;
+
+    void startDefaultInterfaceMonitor(InterfaceUpdateListener listener) throws Exception;
+
+    StringIterator systemCertificates();
+
+    boolean underNetworkExtension();
+
+    boolean usePlatformAutoDetectInterfaceControl();
+
+    boolean useProcFS();
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/PProfServer.class */
+public final class PProfServer implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __NewPProfServer(long port);
+
+    public native void close() throws Exception;
+
+    public native void start() throws Exception;
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    public PProfServer(long port) {
+        this.refnum = __NewPProfServer(port);
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    PProfServer(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof PProfServer)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[0]);
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("PProfServer").append("{");
+        return b.append("}").toString();
+    }
+}
+
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ProcessInfo.class */
+public final class ProcessInfo implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native long getProcessID();
+
+    public final native void setProcessID(long v);
+
+    public final native int getUserID();
+
+    public final native void setUserID(int v);
+
+    public final native String getUserName();
+
+    public final native void setUserName(String v);
+
+    public final native String getProcessPath();
+
+    public final native void setProcessPath(String v);
+
+    public final native String getPackageName();
+
+    public final native void setPackageName(String v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    ProcessInfo(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public ProcessInfo() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof ProcessInfo)) {
+            return false;
+        }
+        ProcessInfo that = (ProcessInfo) o;
+        long thisProcessID = getProcessID();
+        long thatProcessID = that.getProcessID();
+        if (thisProcessID != thatProcessID) {
+            return false;
+        }
+        int thisUserID = getUserID();
+        int thatUserID = that.getUserID();
+        if (thisUserID != thatUserID) {
+            return false;
+        }
+        String thisUserName = getUserName();
+        String thatUserName = that.getUserName();
+        if (thisUserName == null) {
+            if (thatUserName != null) {
+                return false;
+            }
+        } else if (!thisUserName.equals(thatUserName)) {
+            return false;
+        }
+        String thisProcessPath = getProcessPath();
+        String thatProcessPath = that.getProcessPath();
+        if (thisProcessPath == null) {
+            if (thatProcessPath != null) {
+                return false;
+            }
+        } else if (!thisProcessPath.equals(thatProcessPath)) {
+            return false;
+        }
+        String thisPackageName = getPackageName();
+        String thatPackageName = that.getPackageName();
+        if (thisPackageName == null) {
+            if (thatPackageName != null) {
+                return false;
+            }
+            return true;
+        }
+        if (!thisPackageName.equals(thatPackageName)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{Long.valueOf(getProcessID()), Integer.valueOf(getUserID()), getUserName(), getProcessPath(), getPackageName()});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("ProcessInfo").append("{");
+        b.append("ProcessID:").append(getProcessID()).append(",");
+        b.append("UserID:").append(getUserID()).append(",");
+        b.append("UserName:").append(getUserName()).append(",");
+        b.append("ProcessPath:").append(getProcessPath()).append(",");
+        b.append("PackageName:").append(getPackageName()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ProfileContent.class */
+public final class ProfileContent implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native String getName();
+
+    public final native void setName(String v);
+
+    public final native int getType();
+
+    public final native void setType(int v);
+
+    public final native String getConfig();
+
+    public final native void setConfig(String v);
+
+    public final native String getRemotePath();
+
+    public final native void setRemotePath(String v);
+
+    public final native boolean getAutoUpdate();
+
+    public final native void setAutoUpdate(boolean v);
+
+    public final native int getAutoUpdateInterval();
+
+    public final native void setAutoUpdateInterval(int v);
+
+    public final native long getLastUpdated();
+
+    public final native void setLastUpdated(long v);
+
+    public native byte[] encode();
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    ProfileContent(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public ProfileContent() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof ProfileContent)) {
+            return false;
+        }
+        ProfileContent that = (ProfileContent) o;
+        String thisName = getName();
+        String thatName = that.getName();
+        if (thisName == null) {
+            if (thatName != null) {
+                return false;
+            }
+        } else if (!thisName.equals(thatName)) {
+            return false;
+        }
+        int thisType = getType();
+        int thatType = that.getType();
+        if (thisType != thatType) {
+            return false;
+        }
+        String thisConfig = getConfig();
+        String thatConfig = that.getConfig();
+        if (thisConfig == null) {
+            if (thatConfig != null) {
+                return false;
+            }
+        } else if (!thisConfig.equals(thatConfig)) {
+            return false;
+        }
+        String thisRemotePath = getRemotePath();
+        String thatRemotePath = that.getRemotePath();
+        if (thisRemotePath == null) {
+            if (thatRemotePath != null) {
+                return false;
+            }
+        } else if (!thisRemotePath.equals(thatRemotePath)) {
+            return false;
+        }
+        boolean thisAutoUpdate = getAutoUpdate();
+        boolean thatAutoUpdate = that.getAutoUpdate();
+        if (thisAutoUpdate != thatAutoUpdate) {
+            return false;
+        }
+        int thisAutoUpdateInterval = getAutoUpdateInterval();
+        int thatAutoUpdateInterval = that.getAutoUpdateInterval();
+        if (thisAutoUpdateInterval != thatAutoUpdateInterval) {
+            return false;
+        }
+        long thisLastUpdated = getLastUpdated();
+        long thatLastUpdated = that.getLastUpdated();
+        if (thisLastUpdated != thatLastUpdated) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getName(), Integer.valueOf(getType()), getConfig(), getRemotePath(), Boolean.valueOf(getAutoUpdate()), Integer.valueOf(getAutoUpdateInterval()), Long.valueOf(getLastUpdated())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("ProfileContent").append("{");
+        b.append("Name:").append(getName()).append(",");
+        b.append("Type:").append(getType()).append(",");
+        b.append("Config:").append(getConfig()).append(",");
+        b.append("RemotePath:").append(getRemotePath()).append(",");
+        b.append("AutoUpdate:").append(getAutoUpdate()).append(",");
+        b.append("AutoUpdateInterval:").append(getAutoUpdateInterval()).append(",");
+        b.append("LastUpdated:").append(getLastUpdated()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ProfileContentRequest.class */
+public final class ProfileContentRequest implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native long getProfileID();
+
+    public final native void setProfileID(long v);
+
+    public native byte[] encode();
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    ProfileContentRequest(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public ProfileContentRequest() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof ProfileContentRequest)) {
+            return false;
+        }
+        ProfileContentRequest that = (ProfileContentRequest) o;
+        long thisProfileID = getProfileID();
+        long thatProfileID = that.getProfileID();
+        if (thisProfileID != thatProfileID) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{Long.valueOf(getProfileID())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("ProfileContentRequest").append("{");
+        b.append("ProfileID:").append(getProfileID()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ProfileDecoder.class */
+public final class ProfileDecoder implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public native void decode(byte[] data) throws Exception;
+
+    public native ProfilePreviewIterator iterator();
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    ProfileDecoder(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public ProfileDecoder() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof ProfileDecoder)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[0]);
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("ProfileDecoder").append("{");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ProfileEncoder.class */
+public final class ProfileEncoder implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public native void append(ProfilePreview profile);
+
+    public native byte[] encode();
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    ProfileEncoder(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public ProfileEncoder() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof ProfileEncoder)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[0]);
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("ProfileEncoder").append("{");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ProfilePreview.class */
+public final class ProfilePreview implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native long getProfileID();
+
+    public final native void setProfileID(long v);
+
+    public final native String getName();
+
+    public final native void setName(String v);
+
+    public final native int getType();
+
+    public final native void setType(int v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    ProfilePreview(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public ProfilePreview() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof ProfilePreview)) {
+            return false;
+        }
+        ProfilePreview that = (ProfilePreview) o;
+        long thisProfileID = getProfileID();
+        long thatProfileID = that.getProfileID();
+        if (thisProfileID != thatProfileID) {
+            return false;
+        }
+        String thisName = getName();
+        String thatName = that.getName();
+        if (thisName == null) {
+            if (thatName != null) {
+                return false;
+            }
+        } else if (!thisName.equals(thatName)) {
+            return false;
+        }
+        int thisType = getType();
+        int thatType = that.getType();
+        if (thisType != thatType) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{Long.valueOf(getProfileID()), getName(), Integer.valueOf(getType())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("ProfilePreview").append("{");
+        b.append("ProfileID:").append(getProfileID()).append(",");
+        b.append("Name:").append(getName()).append(",");
+        b.append("Type:").append(getType()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/ProfilePreviewIterator.class */
+public interface ProfilePreviewIterator {
+    boolean hasNext();
+
+    ProfilePreview next();
+}
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/RoutePrefix.class */
+public final class RoutePrefix implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public native String address();
+
+    public native String mask();
+
+    public native int prefix();
+
+    public native String string();
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    RoutePrefix(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public RoutePrefix() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof RoutePrefix)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[0]);
+    }
+
+    public String toString() {
+        return string();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/RoutePrefixIterator.class */
+public interface RoutePrefixIterator {
+    boolean hasNext();
+
+    RoutePrefix next();
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/SetupOptions.class */
+public final class SetupOptions implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native String getBasePath();
+
+    public final native void setBasePath(String v);
+
+    public final native String getWorkingPath();
+
+    public final native void setWorkingPath(String v);
+
+    public final native String getTempPath();
+
+    public final native void setTempPath(String v);
+
+    public final native boolean getFixAndroidStack();
+
+    public final native void setFixAndroidStack(boolean v);
+
+    public final native int getCommandServerListenPort();
+
+    public final native void setCommandServerListenPort(int v);
+
+    public final native String getCommandServerSecret();
+
+    public final native void setCommandServerSecret(String v);
+
+    public final native long getLogMaxLines();
+
+    public final native void setLogMaxLines(long v);
+
+    public final native boolean getDebug();
+
+    public final native void setDebug(boolean v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    SetupOptions(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public SetupOptions() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof SetupOptions)) {
+            return false;
+        }
+        SetupOptions that = (SetupOptions) o;
+        String thisBasePath = getBasePath();
+        String thatBasePath = that.getBasePath();
+        if (thisBasePath == null) {
+            if (thatBasePath != null) {
+                return false;
+            }
+        } else if (!thisBasePath.equals(thatBasePath)) {
+            return false;
+        }
+        String thisWorkingPath = getWorkingPath();
+        String thatWorkingPath = that.getWorkingPath();
+        if (thisWorkingPath == null) {
+            if (thatWorkingPath != null) {
+                return false;
+            }
+        } else if (!thisWorkingPath.equals(thatWorkingPath)) {
+            return false;
+        }
+        String thisTempPath = getTempPath();
+        String thatTempPath = that.getTempPath();
+        if (thisTempPath == null) {
+            if (thatTempPath != null) {
+                return false;
+            }
+        } else if (!thisTempPath.equals(thatTempPath)) {
+            return false;
+        }
+        boolean thisFixAndroidStack = getFixAndroidStack();
+        boolean thatFixAndroidStack = that.getFixAndroidStack();
+        if (thisFixAndroidStack != thatFixAndroidStack) {
+            return false;
+        }
+        int thisCommandServerListenPort = getCommandServerListenPort();
+        int thatCommandServerListenPort = that.getCommandServerListenPort();
+        if (thisCommandServerListenPort != thatCommandServerListenPort) {
+            return false;
+        }
+        String thisCommandServerSecret = getCommandServerSecret();
+        String thatCommandServerSecret = that.getCommandServerSecret();
+        if (thisCommandServerSecret == null) {
+            if (thatCommandServerSecret != null) {
+                return false;
+            }
+        } else if (!thisCommandServerSecret.equals(thatCommandServerSecret)) {
+            return false;
+        }
+        long thisLogMaxLines = getLogMaxLines();
+        long thatLogMaxLines = that.getLogMaxLines();
+        if (thisLogMaxLines != thatLogMaxLines) {
+            return false;
+        }
+        boolean thisDebug = getDebug();
+        boolean thatDebug = that.getDebug();
+        if (thisDebug != thatDebug) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getBasePath(), getWorkingPath(), getTempPath(), Boolean.valueOf(getFixAndroidStack()), Integer.valueOf(getCommandServerListenPort()), getCommandServerSecret(), Long.valueOf(getLogMaxLines()), Boolean.valueOf(getDebug())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("SetupOptions").append("{");
+        b.append("BasePath:").append(getBasePath()).append(",");
+        b.append("WorkingPath:").append(getWorkingPath()).append(",");
+        b.append("TempPath:").append(getTempPath()).append(",");
+        b.append("FixAndroidStack:").append(getFixAndroidStack()).append(",");
+        b.append("CommandServerListenPort:").append(getCommandServerListenPort()).append(",");
+        b.append("CommandServerSecret:").append(getCommandServerSecret()).append(",");
+        b.append("LogMaxLines:").append(getLogMaxLines()).append(",");
+        b.append("Debug:").append(getDebug()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/StatusMessage.class */
+public final class StatusMessage implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native long getMemory();
+
+    public final native void setMemory(long v);
+
+    public final native int getGoroutines();
+
+    public final native void setGoroutines(int v);
+
+    public final native int getConnectionsIn();
+
+    public final native void setConnectionsIn(int v);
+
+    public final native int getConnectionsOut();
+
+    public final native void setConnectionsOut(int v);
+
+    public final native boolean getTrafficAvailable();
+
+    public final native void setTrafficAvailable(boolean v);
+
+    public final native long getUplink();
+
+    public final native void setUplink(long v);
+
+    public final native long getDownlink();
+
+    public final native void setDownlink(long v);
+
+    public final native long getUplinkTotal();
+
+    public final native void setUplinkTotal(long v);
+
+    public final native long getDownlinkTotal();
+
+    public final native void setDownlinkTotal(long v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    StatusMessage(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public StatusMessage() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof StatusMessage)) {
+            return false;
+        }
+        StatusMessage that = (StatusMessage) o;
+        long thisMemory = getMemory();
+        long thatMemory = that.getMemory();
+        if (thisMemory != thatMemory) {
+            return false;
+        }
+        int thisGoroutines = getGoroutines();
+        int thatGoroutines = that.getGoroutines();
+        if (thisGoroutines != thatGoroutines) {
+            return false;
+        }
+        int thisConnectionsIn = getConnectionsIn();
+        int thatConnectionsIn = that.getConnectionsIn();
+        if (thisConnectionsIn != thatConnectionsIn) {
+            return false;
+        }
+        int thisConnectionsOut = getConnectionsOut();
+        int thatConnectionsOut = that.getConnectionsOut();
+        if (thisConnectionsOut != thatConnectionsOut) {
+            return false;
+        }
+        boolean thisTrafficAvailable = getTrafficAvailable();
+        boolean thatTrafficAvailable = that.getTrafficAvailable();
+        if (thisTrafficAvailable != thatTrafficAvailable) {
+            return false;
+        }
+        long thisUplink = getUplink();
+        long thatUplink = that.getUplink();
+        if (thisUplink != thatUplink) {
+            return false;
+        }
+        long thisDownlink = getDownlink();
+        long thatDownlink = that.getDownlink();
+        if (thisDownlink != thatDownlink) {
+            return false;
+        }
+        long thisUplinkTotal = getUplinkTotal();
+        long thatUplinkTotal = that.getUplinkTotal();
+        if (thisUplinkTotal != thatUplinkTotal) {
+            return false;
+        }
+        long thisDownlinkTotal = getDownlinkTotal();
+        long thatDownlinkTotal = that.getDownlinkTotal();
+        if (thisDownlinkTotal != thatDownlinkTotal) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{Long.valueOf(getMemory()), Integer.valueOf(getGoroutines()), Integer.valueOf(getConnectionsIn()), Integer.valueOf(getConnectionsOut()), Boolean.valueOf(getTrafficAvailable()), Long.valueOf(getUplink()), Long.valueOf(getDownlink()), Long.valueOf(getUplinkTotal()), Long.valueOf(getDownlinkTotal())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("StatusMessage").append("{");
+        b.append("Memory:").append(getMemory()).append(",");
+        b.append("Goroutines:").append(getGoroutines()).append(",");
+        b.append("ConnectionsIn:").append(getConnectionsIn()).append(",");
+        b.append("ConnectionsOut:").append(getConnectionsOut()).append(",");
+        b.append("TrafficAvailable:").append(getTrafficAvailable()).append(",");
+        b.append("Uplink:").append(getUplink()).append(",");
+        b.append("Downlink:").append(getDownlink()).append(",");
+        b.append("UplinkTotal:").append(getUplinkTotal()).append(",");
+        b.append("DownlinkTotal:").append(getDownlinkTotal()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/StringBox.class */
+public final class StringBox implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native String getValue();
+
+    public final native void setValue(String v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    StringBox(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public StringBox() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof StringBox)) {
+            return false;
+        }
+        StringBox that = (StringBox) o;
+        String thisValue = getValue();
+        String thatValue = that.getValue();
+        if (thisValue == null) {
+            if (thatValue != null) {
+                return false;
+            }
+            return true;
+        }
+        if (!thisValue.equals(thatValue)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getValue()});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("StringBox").append("{");
+        b.append("Value:").append(getValue()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/StringIterator.class */
+public interface StringIterator {
+    boolean hasNext();
+
+    int len();
+
+    String next();
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/SystemProxyStatus.class */
+public final class SystemProxyStatus implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native boolean getAvailable();
+
+    public final native void setAvailable(boolean v);
+
+    public final native boolean getEnabled();
+
+    public final native void setEnabled(boolean v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    SystemProxyStatus(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public SystemProxyStatus() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof SystemProxyStatus)) {
+            return false;
+        }
+        SystemProxyStatus that = (SystemProxyStatus) o;
+        boolean thisAvailable = getAvailable();
+        boolean thatAvailable = that.getAvailable();
+        if (thisAvailable != thatAvailable) {
+            return false;
+        }
+        boolean thisEnabled = getEnabled();
+        boolean thatEnabled = that.getEnabled();
+        if (thisEnabled != thatEnabled) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{Boolean.valueOf(getAvailable()), Boolean.valueOf(getEnabled())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("SystemProxyStatus").append("{");
+        b.append("Available:").append(getAvailable()).append(",");
+        b.append("Enabled:").append(getEnabled()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/TunOptions.class */
+public interface TunOptions {
+    boolean getAutoRoute();
+
+    StringBox getDNSServerAddress() throws Exception;
+
+    StringIterator getExcludePackage();
+
+    StringIterator getHTTPProxyBypassDomain();
+
+    StringIterator getHTTPProxyMatchDomain();
+
+    String getHTTPProxyServer();
+
+    int getHTTPProxyServerPort();
+
+    StringIterator getIncludePackage();
+
+    RoutePrefixIterator getInet4Address();
+
+    RoutePrefixIterator getInet4RouteAddress();
+
+    RoutePrefixIterator getInet4RouteExcludeAddress();
+
+    RoutePrefixIterator getInet4RouteRange();
+
+    RoutePrefixIterator getInet6Address();
+
+    RoutePrefixIterator getInet6RouteAddress();
+
+    RoutePrefixIterator getInet6RouteExcludeAddress();
+
+    RoutePrefixIterator getInet6RouteRange();
+
+    int getMTU();
+
+    boolean getStrictRoute();
+
+    boolean isHTTPProxyEnabled();
+}
+
+
+package com.hiddify.core.libbox;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/WIFIState.class */
+public final class WIFIState implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __NewWIFIState(String wifiSSID, String wifiBSSID);
+
+    public final native String getSSID();
+
+    public final native void setSSID(String v);
+
+    public final native String getBSSID();
+
+    public final native void setBSSID(String v);
+
+    static {
+        Libbox.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    public WIFIState(String wifiSSID, String wifiBSSID) {
+        this.refnum = __NewWIFIState(wifiSSID, wifiBSSID);
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    WIFIState(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof WIFIState)) {
+            return false;
+        }
+        WIFIState that = (WIFIState) o;
+        String thisSSID = getSSID();
+        String thatSSID = that.getSSID();
+        if (thisSSID == null) {
+            if (thatSSID != null) {
+                return false;
+            }
+        } else if (!thisSSID.equals(thatSSID)) {
+            return false;
+        }
+        String thisBSSID = getBSSID();
+        String thatBSSID = that.getBSSID();
+        if (thisBSSID == null) {
+            if (thatBSSID != null) {
+                return false;
+            }
+            return true;
+        }
+        if (!thisBSSID.equals(thatBSSID)) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getSSID(), getBSSID()});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("WIFIState").append("{");
+        b.append("SSID:").append(getSSID()).append(",");
+        b.append("BSSID:").append(getBSSID()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package com.hiddify.core.libbox;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/libbox/XPCDialer.class */
+public interface XPCDialer {
+    int dialXPC() throws Exception;
+}
+
+
+package com.hiddify.core.mobile;
+
+import com.hiddify.core.libbox.Libbox;
+import com.hiddify.core.libbox.PlatformInterface;
+import go.Seq;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/mobile/Mobile.class */
+public abstract class Mobile {
+    private static native void _init();
+
+    public static native void addGrpcClientPublicKey(byte[] clientPublicKey) throws Exception;
+
+    public static native void close(long mode);
+
+    public static native byte[] getServerPublicKey();
+
+    public static native void pause();
+
+    public static native void setup(SetupOptions opt, PlatformInterface platformInterface) throws Exception;
+
+    public static native void start(String configPath, String configContent) throws Exception;
+
+    public static native void stop() throws Exception;
+
+    public static native String test();
+
+    public static native void wake();
+
+    static {
+        Seq.touch();
+        Libbox.touch();
+        _init();
+    }
+
+    private Mobile() {
+    }
+
+    public static void touch() {
+    }
+}
+
+
+package com.hiddify.core.mobile;
+
+import go.Seq;
+import java.util.Arrays;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:com/hiddify/core/mobile/SetupOptions.class */
+public final class SetupOptions implements Seq.Proxy {
+    public final int refnum;
+
+    private static native int __New();
+
+    public final native String getBasePath();
+
+    public final native void setBasePath(String v);
+
+    public final native String getWorkingDir();
+
+    public final native void setWorkingDir(String v);
+
+    public final native String getTempDir();
+
+    public final native void setTempDir(String v);
+
+    public final native String getListen();
+
+    public final native void setListen(String v);
+
+    public final native String getSecret();
+
+    public final native void setSecret(String v);
+
+    public final native boolean getDebug();
+
+    public final native void setDebug(boolean v);
+
+    public final native long getMode();
+
+    public final native void setMode(long v);
+
+    public final native boolean getFixAndroidStack();
+
+    public final native void setFixAndroidStack(boolean v);
+
+    static {
+        Mobile.touch();
+    }
+
+    @Override // go.Seq.GoObject
+    public final int incRefnum() {
+        Seq.incGoRef(this.refnum, this);
+        return this.refnum;
+    }
+
+    SetupOptions(int refnum) {
+        this.refnum = refnum;
+        Seq.trackGoRef(refnum, this);
+    }
+
+    public SetupOptions() {
+        this.refnum = __New();
+        Seq.trackGoRef(this.refnum, this);
+    }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof SetupOptions)) {
+            return false;
+        }
+        SetupOptions that = (SetupOptions) o;
+        String thisBasePath = getBasePath();
+        String thatBasePath = that.getBasePath();
+        if (thisBasePath == null) {
+            if (thatBasePath != null) {
+                return false;
+            }
+        } else if (!thisBasePath.equals(thatBasePath)) {
+            return false;
+        }
+        String thisWorkingDir = getWorkingDir();
+        String thatWorkingDir = that.getWorkingDir();
+        if (thisWorkingDir == null) {
+            if (thatWorkingDir != null) {
+                return false;
+            }
+        } else if (!thisWorkingDir.equals(thatWorkingDir)) {
+            return false;
+        }
+        String thisTempDir = getTempDir();
+        String thatTempDir = that.getTempDir();
+        if (thisTempDir == null) {
+            if (thatTempDir != null) {
+                return false;
+            }
+        } else if (!thisTempDir.equals(thatTempDir)) {
+            return false;
+        }
+        String thisListen = getListen();
+        String thatListen = that.getListen();
+        if (thisListen == null) {
+            if (thatListen != null) {
+                return false;
+            }
+        } else if (!thisListen.equals(thatListen)) {
+            return false;
+        }
+        String thisSecret = getSecret();
+        String thatSecret = that.getSecret();
+        if (thisSecret == null) {
+            if (thatSecret != null) {
+                return false;
+            }
+        } else if (!thisSecret.equals(thatSecret)) {
+            return false;
+        }
+        boolean thisDebug = getDebug();
+        boolean thatDebug = that.getDebug();
+        if (thisDebug != thatDebug) {
+            return false;
+        }
+        long thisMode = getMode();
+        long thatMode = that.getMode();
+        if (thisMode != thatMode) {
+            return false;
+        }
+        boolean thisFixAndroidStack = getFixAndroidStack();
+        boolean thatFixAndroidStack = that.getFixAndroidStack();
+        if (thisFixAndroidStack != thatFixAndroidStack) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(new Object[]{getBasePath(), getWorkingDir(), getTempDir(), getListen(), getSecret(), Boolean.valueOf(getDebug()), Long.valueOf(getMode()), Boolean.valueOf(getFixAndroidStack())});
+    }
+
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("SetupOptions").append("{");
+        b.append("BasePath:").append(getBasePath()).append(",");
+        b.append("WorkingDir:").append(getWorkingDir()).append(",");
+        b.append("TempDir:").append(getTempDir()).append(",");
+        b.append("Listen:").append(getListen()).append(",");
+        b.append("Secret:").append(getSecret()).append(",");
+        b.append("Debug:").append(getDebug()).append(",");
+        b.append("Mode:").append(getMode()).append(",");
+        b.append("FixAndroidStack:").append(getFixAndroidStack()).append(",");
+        return b.append("}").toString();
+    }
+}
+
+
+package go;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:go/error.class */
+public interface error {
+    String error();
+}
+
+
+package go;
+
+import android.content.Context;
+import java.lang.ref.PhantomReference;
+import java.lang.ref.ReferenceQueue;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.logging.Logger;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:go/Seq.class */
+public class Seq {
+    private static Logger log = Logger.getLogger("GoSeq");
+    private static final int NULL_REFNUM = 41;
+    public static final Ref nullRef = new Ref(NULL_REFNUM, null);
+    private static final GoRefQueue goRefQueue = new GoRefQueue();
+    static final RefTracker tracker;
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:go/Seq$GoObject.class */
+    public interface GoObject {
+        int incRefnum();
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:go/Seq$Proxy.class */
+    public interface Proxy extends GoObject {
+    }
+
+    private static native void init();
+
+    static native void setContext(Object ctx);
+
+    public static native void incGoRef(int refnum, GoObject ref);
+
+    public static native void destroyRef(int refnum);
+
+    static {
+        System.loadLibrary("hiddify-core");
+        init();
+        Universe.touch();
+        tracker = new RefTracker();
+    }
+
+    public static void setContext(Context context) {
+        setContext((Object) context);
+    }
+
+    public static void touch() {
+    }
+
+    private Seq() {
+    }
+
+    public static void incRefnum(int refnum) {
+        tracker.incRefnum(refnum);
+    }
+
+    public static int incRef(Object o) {
+        return tracker.inc(o);
+    }
+
+    public static int incGoObjectRef(GoObject o) {
+        return o.incRefnum();
+    }
+
+    public static void trackGoRef(int refnum, GoObject obj) {
+        if (refnum > 0) {
+            throw new RuntimeException("trackGoRef called with Java refnum " + refnum);
+        }
+        goRefQueue.track(refnum, obj);
+    }
+
+    public static Ref getRef(int refnum) {
+        return tracker.get(refnum);
+    }
+
+    static void decRef(int refnum) {
+        tracker.dec(refnum);
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:go/Seq$Ref.class */
+    public static final class Ref {
+        public final int refnum;
+        private int refcnt;
+        public final Object obj;
+
+        static /* synthetic */ int access$110(Ref x0) {
+            int i = x0.refcnt;
+            x0.refcnt = i - 1;
+            return i;
+        }
+
+        Ref(int refnum, Object o) {
+            if (refnum < 0) {
+                throw new RuntimeException("Ref instantiated with a Go refnum " + refnum);
+            }
+            this.refnum = refnum;
+            this.refcnt = 0;
+            this.obj = o;
+        }
+
+        void inc() {
+            if (this.refcnt == Integer.MAX_VALUE) {
+                throw new RuntimeException("refnum " + this.refnum + " overflow");
+            }
+            this.refcnt++;
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:go/Seq$RefTracker.class */
+    static final class RefTracker {
+        private static final int REF_OFFSET = 42;
+        private int next = REF_OFFSET;
+        private final RefMap javaObjs = new RefMap();
+        private final IdentityHashMap<Object, Integer> javaRefs = new IdentityHashMap<>();
+
+        RefTracker() {
+        }
+
+        synchronized int inc(Object o) {
+            if (o == null) {
+                return Seq.NULL_REFNUM;
+            }
+            if (o instanceof Proxy) {
+                return ((Proxy) o).incRefnum();
+            }
+            Integer refnumObj = this.javaRefs.get(o);
+            if (refnumObj == null) {
+                if (this.next == Integer.MAX_VALUE) {
+                    throw new RuntimeException("createRef overflow for " + o);
+                }
+                int i = this.next;
+                this.next = i + 1;
+                refnumObj = Integer.valueOf(i);
+                this.javaRefs.put(o, refnumObj);
+            }
+            int refnum = refnumObj.intValue();
+            Ref ref = this.javaObjs.get(refnum);
+            if (ref == null) {
+                ref = new Ref(refnum, o);
+                this.javaObjs.put(refnum, ref);
+            }
+            ref.inc();
+            return refnum;
+        }
+
+        synchronized void incRefnum(int refnum) {
+            Ref ref = this.javaObjs.get(refnum);
+            if (ref == null) {
+                throw new RuntimeException("referenced Java object is not found: refnum=" + refnum);
+            }
+            ref.inc();
+        }
+
+        synchronized void dec(int refnum) {
+            if (refnum <= 0) {
+                Seq.log.severe("dec request for Go object " + refnum);
+                return;
+            }
+            if (refnum == Seq.nullRef.refnum) {
+                return;
+            }
+            Ref obj = this.javaObjs.get(refnum);
+            if (obj == null) {
+                throw new RuntimeException("referenced Java object is not found: refnum=" + refnum);
+            }
+            Ref.access$110(obj);
+            if (obj.refcnt <= 0) {
+                this.javaObjs.remove(refnum);
+                this.javaRefs.remove(obj.obj);
+            }
+        }
+
+        synchronized Ref get(int refnum) {
+            if (refnum < 0) {
+                throw new RuntimeException("ref called with Go refnum " + refnum);
+            }
+            if (refnum == Seq.NULL_REFNUM) {
+                return Seq.nullRef;
+            }
+            Ref ref = this.javaObjs.get(refnum);
+            if (ref == null) {
+                throw new RuntimeException("unknown java Ref: " + refnum);
+            }
+            return ref;
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:go/Seq$GoRefQueue.class */
+    static class GoRefQueue extends ReferenceQueue<GoObject> {
+        private final Collection<GoRef> refs = Collections.synchronizedCollection(new HashSet());
+
+        void track(int refnum, GoObject obj) {
+            this.refs.add(new GoRef(refnum, obj, this));
+        }
+
+        GoRefQueue() {
+            Thread daemon = new Thread(new Runnable() { // from class: go.Seq.GoRefQueue.1
+                @Override // java.lang.Runnable
+                public void run() {
+                    while (true) {
+                        try {
+                            GoRef ref = (GoRef) GoRefQueue.this.remove();
+                            GoRefQueue.this.refs.remove(ref);
+                            Seq.destroyRef(ref.refnum);
+                            ref.clear();
+                        } catch (InterruptedException e) {
+                        }
+                    }
+                }
+            });
+            daemon.setDaemon(true);
+            daemon.setName("GoRefQueue Finalizer Thread");
+            daemon.start();
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:go/Seq$GoRef.class */
+    static class GoRef extends PhantomReference<GoObject> {
+        final int refnum;
+
+        GoRef(int refnum, GoObject obj, GoRefQueue q) {
+            super(obj, q);
+            if (refnum > 0) {
+                throw new RuntimeException("GoRef instantiated with a Java refnum " + refnum);
+            }
+            this.refnum = refnum;
+        }
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:go/Seq$RefMap.class */
+    static final class RefMap {
+        private int next = 0;
+        private int live = 0;
+        private int[] keys = new int[16];
+        private Ref[] objs = new Ref[16];
+
+        RefMap() {
+        }
+
+        Ref get(int key) {
+            int i = Arrays.binarySearch(this.keys, 0, this.next, key);
+            if (i >= 0) {
+                return this.objs[i];
+            }
+            return null;
+        }
+
+        void remove(int key) {
+            int i = Arrays.binarySearch(this.keys, 0, this.next, key);
+            if (i >= 0 && this.objs[i] != null) {
+                this.objs[i] = null;
+                this.live--;
+            }
+        }
+
+        void put(int key, Ref obj) {
+            if (obj == null) {
+                throw new RuntimeException("put a null ref (with key " + key + ")");
+            }
+            int i = Arrays.binarySearch(this.keys, 0, this.next, key);
+            if (i >= 0) {
+                if (this.objs[i] == null) {
+                    this.objs[i] = obj;
+                    this.live++;
+                }
+                if (this.objs[i] != obj) {
+                    throw new RuntimeException("replacing an existing ref (with key " + key + ")");
+                }
+                return;
+            }
+            if (this.next >= this.keys.length) {
+                grow();
+                i = Arrays.binarySearch(this.keys, 0, this.next, key);
+            }
+            int i2 = i ^ (-1);
+            if (i2 < this.next) {
+                System.arraycopy(this.keys, i2, this.keys, i2 + 1, this.next - i2);
+                System.arraycopy(this.objs, i2, this.objs, i2 + 1, this.next - i2);
+            }
+            this.keys[i2] = key;
+            this.objs[i2] = obj;
+            this.live++;
+            this.next++;
+        }
+
+        private void grow() {
+            int[] newKeys;
+            Ref[] newObjs;
+            int len = 2 * roundPow2(this.live);
+            if (len > this.keys.length) {
+                newKeys = new int[this.keys.length * 2];
+                newObjs = new Ref[this.objs.length * 2];
+            } else {
+                newKeys = this.keys;
+                newObjs = this.objs;
+            }
+            int j = 0;
+            for (int i = 0; i < this.keys.length; i++) {
+                if (this.objs[i] != null) {
+                    newKeys[j] = this.keys[i];
+                    newObjs[j] = this.objs[i];
+                    j++;
+                }
+            }
+            for (int i2 = j; i2 < newKeys.length; i2++) {
+                newKeys[i2] = 0;
+                newObjs[i2] = null;
+            }
+            this.keys = newKeys;
+            this.objs = newObjs;
+            this.next = j;
+            if (this.live != this.next) {
+                throw new RuntimeException("bad state: live=" + this.live + ", next=" + this.next);
+            }
+        }
+
+        private static int roundPow2(int x) {
+            int i = 1;
+            while (true) {
+                int p = i;
+                if (p < x) {
+                    i = p * 2;
+                } else {
+                    return p;
+                }
+            }
+        }
+    }
+}
+
+
+package go;
+
+import go.Seq;
+
+/* JADX INFO: loaded from: hiddify-core.aar:classes.jar:go/Universe.class */
+public abstract class Universe {
+    private static native void _init();
+
+    static {
+        Seq.touch();
+        _init();
+    }
+
+    private Universe() {
+    }
+
+    public static void touch() {
+    }
+
+    /* JADX INFO: loaded from: hiddify-core.aar:classes.jar:go/Universe$proxyerror.class */
+    private static final class proxyerror extends Exception implements Seq.Proxy, error {
+        public final int refnum;
+
+        @Override // go.error
+        public native String error();
+
+        @Override // go.Seq.GoObject
+        public final int incRefnum() {
+            Seq.incGoRef(this.refnum, this);
+            return this.refnum;
+        }
+
+        proxyerror(int refnum) {
+            this.refnum = refnum;
+            Seq.trackGoRef(refnum, this);
+        }
+
+        @Override // java.lang.Throwable
+        public String getMessage() {
+            return error();
+        }
+    }
+}

@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">easy_hiddify_lib</string>
+    <string name="received_logs_from_core">Received logs from core, count: %d</string>
+    <string name="core_requested_service_reload">Core requested service reload</string>
+    <string name="core_requested_service_stop">Core requested service stop</string>
+    <string name="core_debug">[Core Debug] %s</string>
+    <string name="opentun_called_core">---> openTun called by Core!</string>
+    <string name="failed_to_disallow">Failed to disallow self: %s</string>
+    <string name="vpn_prepare_required">android: vpn prepare required</string>
+    <string name="unsupported_protocol">Unsupported protocol %s</string>
+    <string name="error">error</string>
+    <string name="invalid_ss_base">Invalid SS Base64</string>
+    <string name="invalid_ss_userinfo_format">Invalid SS userinfo format</string>
+
+
+</resources>
