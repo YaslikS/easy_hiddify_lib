@@ -4,6 +4,14 @@ plugins {
     `maven-publish`
 }
 
+val extractAar = tasks.register<Copy>("extractHiddifyCore") {
+    val aar = file("libs/hiddify-core.aar")
+    if (aar.exists()) {
+        from(zipTree(aar))
+        into(layout.buildDirectory.dir("extracted-hiddify-core"))
+    }
+}
+
 android {
     namespace = "com.yasliks.easy_hiddify_lib"
     compileSdk = 35
@@ -28,6 +36,12 @@ android {
         buildConfig = true
     }
 
+    sourceSets {
+        getByName("main") {
+            jniLibs.srcDir(layout.buildDirectory.dir("extracted-hiddify-core/jni"))
+        }
+    }
+
     publishing {
         singleVariant("release") {
             withSourcesJar()
@@ -41,10 +55,15 @@ kotlin {
     }
 }
 
+tasks.named("preBuild") {
+    dependsOn(extractAar)
+}
+
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
-    api(files("libs/hiddify-core.aar"))
+
+    api(files(layout.buildDirectory.file("extracted-hiddify-core/classes.jar")))
 }
 
 afterEvaluate {
