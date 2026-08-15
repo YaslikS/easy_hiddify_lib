@@ -43,7 +43,7 @@ kotlin {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0") // <-- ДОБАВЛЕНЫ КОРУТИНЫ
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
     api(files("libs/hiddify-core.aar"))
 }
 
