@@ -3,6 +3,11 @@ plugins {
     `maven-publish`
 }
 
+val isAgp9OrHigher = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.startsWith("9.")
+if (!isAgp9OrHigher) {
+    apply(plugin = "org.jetbrains.kotlin.android")
+}
+
 val extractedDir = file("${layout.buildDirectory.get().asFile}/extracted-hiddify-core")
 val aarFile = file("libs/hiddify-core.aar")
 
@@ -54,6 +59,12 @@ android {
         singleVariant("release") {
             withSourcesJar()
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
