@@ -74,8 +74,9 @@ tasks.named("preBuild") {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+    //noinspection UseTomlInstead
+    implementation("androidx.core:core-ktx:1.19.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
 
     api(files("$extractedDir/classes.jar") {
         builtBy(extractAar)
