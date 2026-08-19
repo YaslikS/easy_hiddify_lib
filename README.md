@@ -159,3 +159,21 @@ The library automatically detects the format of the string passed to the `startV
 1. VLESS links: `vless://uuid@host:port?security=reality&pbk=...&fp=chrome#Name`
 2. Shadowsocks links: `ss://base64(method:password)@host:port#Name`
 3. JSON Hiddify Config: Raw valid JSON for the Hiddify/sing-box core (starting with `{`).
+
+## ⚖️ License & Credits
+
+This project is licensed under the **GNU General Public License v3.0 (GPLv3)**.
+
+This library includes binary components of [hiddify-core](https://github.com/hiddify/hiddify-core), which is licensed under the GPLv3.
+
+### Third-Party Components:
+- **Hiddify Core / Libbox** — [GPLv3 License](https://github.com/hiddify/hiddify-core)
+- **sing-box** — [GPLv3 License](https://github.com/SagerNet/sing-box)
+
+## ⚠️ Disclaimer
+
+This library and sample application are provided **"AS IS"** for educational, research, and personal use only, without warranty of any kind.
+
+The author assumes no responsibility or liability for how this software is used, including any misuse, law violations, network restrictions, or damages arising from the use of this library. Users are solely responsible for complying with all applicable local laws and regulations regarding VPN and network proxy usage.
+
+> ⚠️ **Note for Developers:** Because this library depends on `hiddify-core` (GPLv3), any Android application that integrates `easy_hiddify_lib` must also comply with the GPLv3 license terms (i.e. make its source code open).
