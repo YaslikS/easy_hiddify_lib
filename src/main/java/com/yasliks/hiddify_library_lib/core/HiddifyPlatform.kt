@@ -237,15 +237,31 @@ class HiddifyPlatform(
     }
 
     override fun readWIFIState(): WIFIState = WIFIState("", "")
+
     override fun clearDNSCache() {}
+
     override fun getInterfaces(): NetworkInterfaceIterator? = null
+
     override fun includeAllNetworks(): Boolean = true
+
     override fun localDNSTransport(): LocalDNSTransport? = null
+
     override fun startDefaultInterfaceMonitor(listener: InterfaceUpdateListener) {}
+
     override fun closeDefaultInterfaceMonitor(listener: InterfaceUpdateListener) {}
+
     override fun systemCertificates(): StringIterator? = null
+
     override fun underNetworkExtension(): Boolean = false
+
     override fun usePlatformAutoDetectInterfaceControl(): Boolean = true
+
     override fun useProcFS(): Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
-    override fun autoDetectInterfaceControl(fd: Int) {}
+
+    override fun autoDetectInterfaceControl(fd: Int) {
+        val protected = service.protect(fd)
+        if (!protected) {
+            Log.i("HiddifyPlatform", "Failed to protect socket fd: $fd")
+        }
+    }
 }

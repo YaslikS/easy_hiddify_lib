@@ -146,11 +146,14 @@ class HiddifyVpnService : VpnService() {
      */
     private fun setupCommandClient() {
         try {
+            commandClient?.disconnect()
+            commandClient = null
+
             sdk.logger.append(2, "[SERVICE] Connecting CommandClient...")
-            val options = CommandClientOptions()
-                .apply {
-                    statusInterval = HiddifyPrefs.STATUS_INTERVAL
-                }
+            val options = CommandClientOptions().apply {
+                statusInterval = HiddifyPrefs.STATUS_INTERVAL
+                addCommand(Libbox.CommandStatus)
+            }
             commandClient = Libbox.newCommandClient(
                 /* handler = */ HiddifyClientHandler(this),
                 /* options = */ options,

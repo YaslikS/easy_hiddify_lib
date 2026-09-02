@@ -1,17 +1,17 @@
 package com.yasliks.hiddify_library_lib.core
 
 import android.content.Context
-import android.util.Log
+import android.content.Intent
 import com.hiddify.core.libbox.*
 import com.yasliks.hiddify_library_lib.EasyHiddify
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
 
 class HiddifyClientHandler(
     private val context: Context,
 ) : CommandClientHandler {
 
-    private val tag = this.javaClass.simpleName
-
     private val sdk get() = EasyHiddify.instance
+    private var lastBroadcastTime = 0L
 
     override fun connected() {
         sdk.logger.append(2, "[CORE CLIENT] Core connected successfully")
@@ -28,7 +28,30 @@ class HiddifyClientHandler(
     }
 
     override fun writeStatus(message: StatusMessage) {
-        Log.i(tag, "writeStatus -> ${message.uplink} | ${message.downlink}")
+        val now = System.currentTimeMillis()
+        if (now - lastBroadcastTime < 1000) return
+        lastBroadcastTime = now
+
+        sdk.notifications.updateNotificationTraffic(
+            downlinkSpeed = message.downlink,
+            uplinkSpeed = message.uplink,
+            downlinkTotal = message.downlinkTotal,
+            uplinkTotal = message.uplinkTotal
+        )
+
+        try {
+            val intent = Intent(HiddifyPrefs.ACTION_VPN_TRAFFIC).apply {
+                putExtra(HiddifyPrefs.EXTRA_UPLINK_SPEED, message.uplink)
+                putExtra(HiddifyPrefs.EXTRA_DOWNLINK_SPEED, message.downlink)
+                putExtra(HiddifyPrefs.EXTRA_UPLINK_TOTAL, message.uplinkTotal)
+                putExtra(HiddifyPrefs.EXTRA_DOWNLINK_TOTAL, message.downlinkTotal)
+                setPackage(context.packageName)
+            }
+            context.sendBroadcast(intent)
+        } catch (e: Exception) {
+            sdk.logger.append(4, "[CORE CLIENT ERROR] Failed to send traffic broadcast: ${e.message}")
+        }
+
         sdk.state.updateStatus(message)
     }
 
@@ -40,14 +63,9 @@ class HiddifyClientHandler(
         sdk.state.updateGroups(groups)
     }
 
-    override fun writeConnectionEvents(events: ConnectionEvents) {
-
-    }
-
+    override fun writeConnectionEvents(events: ConnectionEvents) {}
     override fun initializeClashMode(modeList: StringIterator, currentMode: String) {}
-
     override fun updateClashMode(newMode: String) {}
-
     override fun setDefaultLogLevel(level: Int) {}
 
     override fun clearLogs() {

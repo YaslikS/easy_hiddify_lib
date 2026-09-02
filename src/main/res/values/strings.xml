@@ -11,6 +11,8 @@
     <string name="error">error</string>
     <string name="invalid_ss_base">Invalid SS Base64</string>
     <string name="invalid_ss_userinfo_format">Invalid SS userinfo format</string>
+    <string name="speed">Speed %s</string>
+    <string name="total">Total %s</string>
 
 
 </resources>

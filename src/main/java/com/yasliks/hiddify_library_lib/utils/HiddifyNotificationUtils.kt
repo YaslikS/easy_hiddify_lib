@@ -7,6 +7,7 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.core.app.NotificationCompat
+import com.hiddify.core.libbox.Libbox
 import com.hiddify.core.libbox.Notification
 import com.yasliks.easy_hiddify_lib.R
 import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
@@ -15,16 +16,24 @@ class HiddifyNotificationUtils(
     private val context: Context,
 ) {
     @DrawableRes
-    var currentIcon: Int = 0
+    var currentIcon = 0
+    private var currentServerName = ""
 
     @SuppressLint("ObsoleteSdkInt")
     fun createNotification(
-        serverName: String?,
+        serverName: String? = null,
         @DrawableRes icon: Int = 0,
-        notification: Notification? = null
+        notification: Notification? = null,
+        downlinkSpeed: Long = 0L,
+        uplinkSpeed: Long = 0L,
+        downlinkTotal: Long = 0L,
+        uplinkTotal: Long = 0L,
     ): android.app.Notification {
         if (icon != 0) {
             currentIcon = icon
+        }
+        if (!serverName.isNullOrEmpty()) {
+            currentServerName = serverName
         }
 
         val manager = context.getSystemService(
@@ -35,15 +44,25 @@ class HiddifyNotificationUtils(
             val channel = NotificationChannel(
                 /* id = */ HiddifyPrefs.CHANNEL_ID,
                 /* name = */ HiddifyPrefs.VPN_STATUS,
-                /* importance = */ NotificationManager.IMPORTANCE_DEFAULT,
+                /* importance = */ NotificationManager.IMPORTANCE_LOW,
             ).apply {
                 setShowBadge(false)
+                setSound(null, null)
+                enableVibration(false)
             }
             manager.createNotificationChannel(channel)
         }
 
-        val title = notification?.title ?: serverName ?: HiddifyPrefs.VPN
-        val content = notification?.body ?: HiddifyPrefs.CONNECTED
+        val title = notification?.title ?: currentServerName.ifEmpty { HiddifyPrefs.VPN }
+
+        val downSpeedStr = "${Libbox.formatBytes(downlinkSpeed)}/s"
+        val upSpeedStr = "${Libbox.formatBytes(uplinkSpeed)}/s"
+        val totalDownStr = Libbox.formatBytes(downlinkTotal)
+        val totalUpStr = Libbox.formatBytes(uplinkTotal)
+
+        val speedLine = context.getString(R.string.speed, "⬇️ $downSpeedStr || ⬆️ $upSpeedStr")
+        val totalLine = context.getString(R.string.total,"⬇️ $totalDownStr || ⬆️ $totalUpStr")
+        val fullText = "$speedLine\n$totalLine"
 
         val iconToSet = if (icon != 0) {
             icon
@@ -58,10 +77,28 @@ class HiddifyNotificationUtils(
         return NotificationCompat.Builder(context, HiddifyPrefs.CHANNEL_ID)
             .setSmallIcon(iconToSet)
             .setContentTitle(title)
-            .setContentText(content)
+            .setContentText(speedLine)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(fullText))
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
             .build()
     }
 
+    fun updateNotificationTraffic(
+        downlinkSpeed: Long,
+        uplinkSpeed: Long,
+        downlinkTotal: Long,
+        uplinkTotal: Long,
+    ) {
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notification = createNotification(
+            serverName = currentServerName,
+            downlinkSpeed = downlinkSpeed,
+            uplinkSpeed = uplinkSpeed,
+            downlinkTotal = downlinkTotal,
+            uplinkTotal = uplinkTotal,
+        )
+        manager.notify(HiddifyPrefs.NOTIFICATION_ID, notification)
+    }
 }

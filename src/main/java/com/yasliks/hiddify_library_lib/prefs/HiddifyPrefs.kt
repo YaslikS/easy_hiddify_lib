@@ -8,12 +8,21 @@ object HiddifyPrefs {
 
     const val VLESS_START_CONFIG = "vless"
     const val SHADOWSOCKS_START_CONFIG = "ss"
+    const val TROJAN_START_CONFIG = "trojan"
 
     const val CONFIG_CONTENT = "config_content"
     const val NAME_SERVER = "name_server"
     const val ICON_PUSH = "icon_push"
     const val APPS_LIST = "apps_list"
     const val IS_ENABLED_APPS = "is_enabled_apps"
+
+    const val ACTION_VPN_TRAFFIC = "com.yasliks.hiddify.VPN_TRAFFIC"
+    const val EXTRA_UPLINK_SPEED = "extra_uplink_speed"
+    const val EXTRA_DOWNLINK_SPEED = "extra_downlink_speed"
+    const val EXTRA_UPLINK_TOTAL = "extra_uplink_total"
+    const val EXTRA_DOWNLINK_TOTAL = "extra_downlink_total"
+
+    const val STATUS_INTERVAL = 1_000_000_000L
 
     const val VPN = "VPN"
     const val SERVER = "server"
@@ -33,7 +42,6 @@ object HiddifyPrefs {
 
     const val EXTRA_IS_CONNECTED = "extra_connected"
     const val COMMAND_SERVER_LISTEN_PORT = 6756
-    const val STATUS_INTERVAL = 1000L
     const val DELAY_BEFORE_EXIT = 200L
 
     const val MAX_LOGS = 500
