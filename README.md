@@ -18,7 +18,7 @@ The library handles all the heavy lifting: configuration parsing, `VpnService` l
   - **Shadowsocks**.
   - Native **Hiddify / sing-box JSON config**.
 - 🔀 **Split Tunneling:** Ability to proxy only selected applications by their `packageName`.
-- 📊 **Real-time Monitoring:** Subscribe to connection status, upload/download speeds, and total traffic via `StateFlow`.
+- 📊 **Real-time Monitoring:** Subscribe to connection status, current connection speed and the spent traffic via `StateFlow`.
 - 📝 **Thread-safe Logs:** System log journal for core and library logs with inter-process broadcasting support.
 - 🔔 **Foreground Service Notifications:** Customizable title, text, and icon for the VPN notification.
 
