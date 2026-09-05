@@ -166,7 +166,8 @@ The library automatically detects the format of the string passed to the `startV
 
 1. VLESS links: `vless://uuid@host:port?security=reality&pbk=...&fp=chrome#Name`
 2. Shadowsocks links: `ss://base64(method:password)@host:port#Name`
-3. JSON Hiddify Config: Raw valid JSON for the Hiddify/sing-box core (starting with `{`).
+3. Trojan links: `trojan://...`
+4. JSON Hiddify Config: Raw valid JSON for the Hiddify/sing-box core (starting with `{`).
 
 ## ⚖️ License & Credits
 
