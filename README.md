@@ -113,7 +113,7 @@ val hiddify = EasyHiddify.instance
 // Start VPN
 fun connectVpn(configUrl: String) {
     hiddify.startVpn(
-        configStr = configUrl, // VLESS link, SS link, or JSON
+        configStr = configUrl, // VLESS link, SS link, TROJAN link or JSON
         serverName = "My Server", // Title in notification
         icon = R.drawable.ic_vpn_lock, // Custom notification icon (optional)
         appsList = listOf("com.android.chrome", "com.instagram.android"), // Split tunneling
@@ -135,19 +135,27 @@ fun VpnScreen(hiddify: EasyHiddify = EasyHiddify.instance) {
     // Connection status (true / false)
     val isConnected by hiddify.state.connected.collectAsState()
 
-    // Traffic and speed info (StatusMessage)
-    val status by hiddify.state.status.collectAsState()
-
-    // Real-time core and library logs
-    val logs by hiddify.logger.logs.collectAsState()
+    // Traffic and speed info (TrafficStats)
+    val traffic by EasyHiddify.instance.state.trafficStats.collectAsState()
 
     Column {
         Text(text = if (isConnected) "CONNECTED" else "DISCONNECTED")
 
-        status?.let {
-            // Format bytes using the built-in formatTraffic() extension
-            Text("Download Speed: ${it.downlinkTotal.formatTraffic()}")
-            Text("Upload Speed: ${it.uplinkTotal.formatTraffic()}")
+        if (isConnected){
+            Text(
+                text = stringResource(
+                    id = R.string.speed,
+                    "⬇️ ${traffic.getDownlinkSpeed()} || ⬆️ ${traffic.getUplinkSpeed()}"
+                ),
+                fontSize = 12.sp
+            )
+            Text(
+                text = stringResource(
+                    id = R.string.total,
+                    "⬇️ ${traffic.getDownlinkTotal()} || ⬆️ ${traffic.getUplinkTotal()}"
+                ),
+                fontSize = 12.sp,
+            )
         }
     }
 }
