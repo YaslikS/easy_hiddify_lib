@@ -18,7 +18,7 @@ The library handles all the heavy lifting: configuration parsing, `VpnService` l
   - **Shadowsocks**.
   - Native **Hiddify / sing-box JSON config**.
 - 🔀 **Split Tunneling:** Ability to proxy only selected applications by their `packageName`.
-- 📊 **Real-time Monitoring:** Subscribe to connection status, upload/download speeds, and total traffic via `StateFlow`.
+- 📊 **Real-time Monitoring:** Subscribe to connection status, current connection speed and the spent traffic via `StateFlow`.
 - 📝 **Thread-safe Logs:** System log journal for core and library logs with inter-process broadcasting support.
 - 🔔 **Foreground Service Notifications:** Customizable title, text, and icon for the VPN notification.
 
@@ -113,7 +113,7 @@ val hiddify = EasyHiddify.instance
 // Start VPN
 fun connectVpn(configUrl: String) {
     hiddify.startVpn(
-        configStr = configUrl, // VLESS link, SS link, or JSON
+        configStr = configUrl, // VLESS link, SS link, TROJAN link or JSON
         serverName = "My Server", // Title in notification
         icon = R.drawable.ic_vpn_lock, // Custom notification icon (optional)
         appsList = listOf("com.android.chrome", "com.instagram.android"), // Split tunneling
@@ -135,19 +135,27 @@ fun VpnScreen(hiddify: EasyHiddify = EasyHiddify.instance) {
     // Connection status (true / false)
     val isConnected by hiddify.state.connected.collectAsState()
 
-    // Traffic and speed info (StatusMessage)
-    val status by hiddify.state.status.collectAsState()
-
-    // Real-time core and library logs
-    val logs by hiddify.logger.logs.collectAsState()
+    // Traffic and speed info (TrafficStats)
+    val traffic by EasyHiddify.instance.state.trafficStats.collectAsState()
 
     Column {
         Text(text = if (isConnected) "CONNECTED" else "DISCONNECTED")
 
-        status?.let {
-            // Format bytes using the built-in formatTraffic() extension
-            Text("Download Speed: ${it.downlinkTotal.formatTraffic()}")
-            Text("Upload Speed: ${it.uplinkTotal.formatTraffic()}")
+        if (isConnected){
+            Text(
+                text = stringResource(
+                    id = R.string.speed,
+                    "⬇️ ${traffic.getDownlinkSpeed()} || ⬆️ ${traffic.getUplinkSpeed()}"
+                ),
+                fontSize = 12.sp
+            )
+            Text(
+                text = stringResource(
+                    id = R.string.total,
+                    "⬇️ ${traffic.getDownlinkTotal()} || ⬆️ ${traffic.getUplinkTotal()}"
+                ),
+                fontSize = 12.sp,
+            )
         }
     }
 }
@@ -158,7 +166,8 @@ The library automatically detects the format of the string passed to the `startV
 
 1. VLESS links: `vless://uuid@host:port?security=reality&pbk=...&fp=chrome#Name`
 2. Shadowsocks links: `ss://base64(method:password)@host:port#Name`
-3. JSON Hiddify Config: Raw valid JSON for the Hiddify/sing-box core (starting with `{`).
+3. Trojan links: `trojan://...`
+4. JSON Hiddify Config: Raw valid JSON for the Hiddify/sing-box core (starting with `{`).
 
 ## ⚖️ License & Credits
 
