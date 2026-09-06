@@ -126,7 +126,7 @@ class HiddifyConfigUtils(private val context: Context) {
                     put("fingerprint", fp)
                 })
 
-                // Если это Reality, добавляем специфичный блок
+                // Specific Reality block
                 if (security == "reality") {
                     tls.put("reality", JSONObject().apply {
                         put("enabled", true)

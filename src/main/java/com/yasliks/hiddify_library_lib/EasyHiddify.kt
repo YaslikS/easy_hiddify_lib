@@ -66,8 +66,8 @@ class EasyHiddify private constructor(
      * @param configStr connection configuration string
      * @param serverName the name of the notification server
      * @param icon notification icon
-     * @param appsList список приложения для туннелирования
-     * @param isEnabledApps включить список приложения для туннелирования
+     * @param appsList list of tunneling applications
+     * @param isEnabledApps enable the list of tunneling applications
      */
     fun startVpn(
         configStr: String,

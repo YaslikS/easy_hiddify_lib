@@ -159,10 +159,10 @@ class HiddifyPlatform(
     }
 
     /**
-     * Проверяет установлено ли приложение на устройстве
+     * Checks if the app is installed on the device
      *
-     * @param packageName Название пакета
-     * @return true - если приложение установлено, false - в остальных случаях
+     * @param packageName Package Name
+     * @return true - if the application is installed, false - in all other cases.
      */
     private fun appIsExists(packageName: String): Boolean {
         try {
