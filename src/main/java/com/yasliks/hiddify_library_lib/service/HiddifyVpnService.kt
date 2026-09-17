@@ -1,10 +1,13 @@
 package com.yasliks.hiddify_library_lib.service
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.VpnService
-import android.util.Log
 import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
 import com.hiddify.core.libbox.CommandClient
 import com.hiddify.core.libbox.CommandClientOptions
 import com.hiddify.core.libbox.CommandServer
@@ -22,6 +25,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
+import androidx.core.content.edit
 
 @SuppressLint("VpnServicePolicy")
 class HiddifyVpnService : VpnService() {
@@ -30,7 +34,33 @@ class HiddifyVpnService : VpnService() {
     private var commandServer: CommandServer? = null
     private var commandClient: CommandClient? = null
 
+    private var isServiceRunning = false
+    private var currentServerId = 0
+    private var currentServerName = ""
+
     private val sdk get() = EasyHiddify.instance
+
+    private val stateRequestReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == HiddifyPrefs.ACTION_REQUEST_VPN_STATE) {
+                notifyStateChange(
+                    isConnected = isServiceRunning,
+                    serverId = currentServerId,
+                    serverName = currentServerName,
+                )
+            }
+        }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        ContextCompat.registerReceiver(
+            /* context = */ this,
+            /* receiver = */ stateRequestReceiver,
+            /* filter = */ IntentFilter(HiddifyPrefs.ACTION_REQUEST_VPN_STATE),
+            /* flags = */ ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+    }
 
     override fun onStartCommand(
         intent: Intent?,
@@ -43,29 +73,19 @@ class HiddifyVpnService : VpnService() {
             return START_NOT_STICKY
         }
 
-        val configContent = intent?.getStringExtra(
-            /* name = */ HiddifyPrefs.CONFIG_CONTENT,
-        ) ?: ""
-        val serverName = intent?.getStringExtra(
-            /* name = */ HiddifyPrefs.NAME_SERVER,
-        ) ?: HiddifyPrefs.VPN
-        val icon = intent?.getIntExtra(
-            /* name = */ HiddifyPrefs.ICON_PUSH,
-            /* defaultValue = */ 0,
-        ) ?: 0
-        val appsList = intent?.getStringArrayExtra(
-            /* name = */ HiddifyPrefs.APPS_LIST,
-        )
-        val isEnabledApps = intent?.getBooleanExtra(
-            /* name = */ HiddifyPrefs.IS_ENABLED_APPS,
-            /* defaultValue = */ false,
-        ) ?: false
+        val configContent = intent?.getStringExtra(HiddifyPrefs.CONFIG_CONTENT) ?: ""
+        val serverName = intent?.getStringExtra(HiddifyPrefs.NAME_SERVER) ?: HiddifyPrefs.VPN
+        val serverId = intent?.getIntExtra(HiddifyPrefs.EXTRA_SERVER_ID, 0) ?: 0
+        val icon = intent?.getIntExtra(HiddifyPrefs.ICON_PUSH, 0) ?: 0
+        val appsList = intent?.getStringArrayExtra(HiddifyPrefs.APPS_LIST)
+        val isEnabledApps = intent?.getBooleanExtra(HiddifyPrefs.IS_ENABLED_APPS, false) ?: false
 
         sdk.logger.append(2, "[SERVICE] Service started with config length: ${configContent.length}")
         if (configContent.isNotEmpty()) {
             startVpn(
                 configContent = configContent,
                 serverName = serverName,
+                serverId = serverId,
                 icon = icon,
                 appsList = appsList?.toList() ?: emptyList(),
                 isEnabledApps = isEnabledApps,
@@ -77,22 +97,17 @@ class HiddifyVpnService : VpnService() {
         return START_STICKY
     }
 
-    /**
-     * Starts a VPN connection using the transmitted configuration
-     *
-     * @param configContent connection configuration string
-     * @param serverName the name of the notification server
-     * @param icon notification icon
-     * @param appsList list of tunneling applications
-     * @param isEnabledApps enable the list of tunneling applications
-     */
     private fun startVpn(
         configContent: String,
         serverName: String,
+        serverId: Int,
         @DrawableRes icon: Int,
         appsList: List<String>,
         isEnabledApps: Boolean,
     ) {
+        currentServerId = serverId
+        currentServerName = serverName
+
         val notification = sdk.notifications.createNotification(
             serverName = serverName,
             icon = icon,
@@ -131,7 +146,10 @@ class HiddifyVpnService : VpnService() {
                 )
                 sdk.logger.append(2, "[SERVICE] Core service loaded successfully")
 
-                notifyStateChange(true)
+                isServiceRunning = true
+                saveVpnState(isRunning = true, serverId = serverId, serverName = serverName)
+                notifyStateChange(true, serverId, serverName)
+
                 setupCommandClient()
                 sdk.logger.append(2, "[SERVICE] VPN started successfully!")
             } catch (e: Exception) {
@@ -141,9 +159,6 @@ class HiddifyVpnService : VpnService() {
         }
     }
 
-    /**
-     * Initializes the client and starts the connection
-     */
     private fun setupCommandClient() {
         try {
             commandClient?.disconnect()
@@ -165,26 +180,36 @@ class HiddifyVpnService : VpnService() {
         }
     }
 
-    /**
-     * Notifies the VPN connection status
-     *
-     * @param isConnected transmitted connection status
-     */
-    private fun notifyStateChange(isConnected: Boolean) {
+    private fun saveVpnState(isRunning: Boolean, serverId: Int, serverName: String) {
+        val prefs = getSharedPreferences(HiddifyPrefs.PREFS_NAME, MODE_PRIVATE)
+        prefs.edit(commit = true) {
+            putBoolean(HiddifyPrefs.KEY_IS_RUNNING, isRunning)
+                .putInt(HiddifyPrefs.KEY_SERVER_ID, serverId)
+                .putString(HiddifyPrefs.KEY_SERVER_NAME, serverName)
+        }
+    }
+
+    private fun notifyStateChange(
+        isConnected: Boolean,
+        serverId: Int = currentServerId,
+        serverName: String = currentServerName,
+    ) {
         val intent = Intent(HiddifyPrefs.ACTION_VPN_STATE).apply {
             putExtra(HiddifyPrefs.EXTRA_IS_CONNECTED, isConnected)
+            putExtra(HiddifyPrefs.EXTRA_SERVER_ID, serverId)
+            putExtra(HiddifyPrefs.EXTRA_SERVER_NAME, serverName)
             setPackage(packageName)
         }
         sendBroadcast(intent)
     }
 
-    /**
-     * Closes the VPN connection
-     */
     private fun stopVpnInternal() {
         sdk.logger.append(2, "[SERVICE] Stopping VPN service...")
-        notifyStateChange(false)
+        isServiceRunning = false
+        saveVpnState(isRunning = false, serverId = 0, serverName = "")
+        notifyStateChange(false, 0, "")
         stopForeground(STOP_FOREGROUND_REMOVE)
+
         Thread {
             try {
                 commandClient?.disconnect()
@@ -202,7 +227,16 @@ class HiddifyVpnService : VpnService() {
         }.start()
     }
 
+    override fun onRevoke() {
+        sdk.logger.append(2, "[SERVICE] VPN revoked by system")
+        stopVpnInternal()
+        super.onRevoke()
+    }
+
     override fun onDestroy() {
+        try {
+            unregisterReceiver(stateRequestReceiver)
+        } catch (_: Exception) {}
         serviceScope.cancel()
         super.onDestroy()
     }

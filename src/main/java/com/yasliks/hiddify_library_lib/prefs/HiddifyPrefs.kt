@@ -53,4 +53,15 @@ object HiddifyPrefs {
     const val VPN_STATUS = "VPN Status"
 
     const val LENGH_RANDOM_HEX = 16
+
+
+    const val ACTION_REQUEST_VPN_STATE = "com.yasliks.hiddify.REQUEST_VPN_STATE"
+
+    const val EXTRA_SERVER_ID = "extra_server_id"
+    const val EXTRA_SERVER_NAME = "extra_server_name"
+
+    const val PREFS_NAME = "hiddify_vpn_state"
+    const val KEY_IS_RUNNING = "is_running"
+    const val KEY_SERVER_ID = "server_id"
+    const val KEY_SERVER_NAME = "server_name"
 }

@@ -46,6 +46,7 @@ class EasyHiddify private constructor(
                     val instance = EasyHiddify(ctx)
                     INSTANCE = instance
                     instance.logger.append(2, "[SDK] EasyHiddify initialized")
+                    instance.state.checkVpnState()
                     instance
                 }
             }
@@ -73,6 +74,7 @@ class EasyHiddify private constructor(
         configStr: String,
         serverName: String = HiddifyPrefs.SERVER,
         @DrawableRes icon: Int = 0,
+        serverId: Int = 0,
         appsList: List<String> = emptyList(),
         isEnabledApps: Boolean = false,
     ) {
@@ -85,6 +87,7 @@ class EasyHiddify private constructor(
             putExtra(HiddifyPrefs.CONFIG_CONTENT, configStr)
             putExtra(HiddifyPrefs.NAME_SERVER, serverName)
             putExtra(HiddifyPrefs.ICON_PUSH, icon)
+            putExtra(HiddifyPrefs.EXTRA_SERVER_ID, serverId)
             putExtra(HiddifyPrefs.APPS_LIST, appsList.toTypedArray())
             putExtra(HiddifyPrefs.IS_ENABLED_APPS, isEnabledApps)
         }
