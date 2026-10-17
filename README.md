@@ -15,10 +15,11 @@ The library handles all the heavy lifting: configuration parsing, `VpnService` l
 - ⚡ **Quick Integration:** Launch VPN in just a couple of lines of code.
 - 🔒 **Protocol Support:**
   - **VLESS** (with REALITY, TLS, uTLS fingerprints, and Flow support).
-  - **Shadowsocks**.
+  - **Trojan** & **Shadowsocks**.
   - Native **Hiddify / sing-box JSON config**.
-- 🔀 **Split Tunneling:** Ability to proxy only selected applications by their `packageName`.
-- 📊 **Real-time Monitoring:** Subscribe to connection status, current connection speed and the spent traffic via `StateFlow`.
+- ⚙️ **Advanced Routing & Tuning:** AdBlock (via geosite), FakeIP, Multiplexing (Mux), Custom DNS, MTU tuning, IPv6 control, LAN Bypass & LAN Proxy Share.
+- 🔀 **Split Tunneling:** Proxy only selected applications by their `packageName` or bypass specific domains.
+- 📊 **Real-time Monitoring:** Subscribe to connection status, current connection speed and spent traffic via `StateFlow`.
 - 📝 **Thread-safe Logs:** System log journal for core and library logs with inter-process broadcasting support.
 - 🔔 **Foreground Service Notifications:** Customizable title, text, and icon for the VPN notification.
 
@@ -127,8 +128,35 @@ fun disconnectVpn() {
 }
 ```
 
-## 📊 State & Traffic Monitoring (`Jetpack Compose / Coroutines`)
-You can subscribe to the VPN state from anywhere in your app:
+## ⚙️ Advanced Settings
+The library exposes a powerful settings manager (`hiddify.settings`). You can modify the core behavior dynamically. *Note: Setting changes take effect upon the next VPN connection.*
+
+```kotlin
+val hiddify = EasyHiddify.instance
+
+// 🌐 Network & Routing
+hiddify.settings.setDnsServer("1.1.1.1")       // Set custom DNS
+hiddify.settings.setMtu(1420)                  // Tune MTU to prevent packet drops
+hiddify.settings.setEnableIPv6(false)          // Disable to prevent IPv6 leaks
+hiddify.settings.setStrictRoute(true)          // Prevent leaks during network changes (Wi-Fi to LTE)
+
+// 🛡️ Split Tunneling & Security
+hiddify.settings.setBypassLan(true)            // Allow access to local network (printers, Smart Home)
+hiddify.settings.setEnableAdBlock(true)        // Block ads at DNS level via geosite
+hiddify.settings.setCustomDirectDomains("ru, sberbank.com") // Bypass VPN for specific domains
+
+// 🚀 Performance & Features
+hiddify.settings.setEnableFakeIp(true)         // Instant DNS resolution for faster browsing
+hiddify.settings.setEnableMux(true)            // Multiplexing to save battery & reduce latency
+hiddify.settings.setEnableLocalProxy(true)     // Opens HTTP/SOCKS5 proxy on port 10808 for LAN sharing
+
+// 📝 Logging
+hiddify.settings.setLogLevel("debug")          // trace, debug, info, warn, error, fatal
+```
+
+## 📊 State, Logs & Traffic Monitoring (`Jetpack Compose / Coroutines`)
+You can subscribe to the VPN state and logs from anywhere in your app:
+
 ```kotlin
 @Composable
 fun VpnScreen(hiddify: EasyHiddify = EasyHiddify.instance) {
@@ -136,26 +164,17 @@ fun VpnScreen(hiddify: EasyHiddify = EasyHiddify.instance) {
     val isConnected by hiddify.state.connected.collectAsState()
 
     // Traffic and speed info (TrafficStats)
-    val traffic by EasyHiddify.instance.state.trafficStats.collectAsState()
+    val traffic by hiddify.state.trafficStats.collectAsState()
+    
+    // Application and Core logs
+    val logs by hiddify.logger.logs.collectAsState()
 
     Column {
         Text(text = if (isConnected) "CONNECTED" else "DISCONNECTED")
 
-        if (isConnected){
-            Text(
-                text = stringResource(
-                    id = R.string.speed,
-                    "⬇️ ${traffic.getDownlinkSpeed()} || ⬆️ ${traffic.getUplinkSpeed()}"
-                ),
-                fontSize = 12.sp
-            )
-            Text(
-                text = stringResource(
-                    id = R.string.total,
-                    "⬇️ ${traffic.getDownlinkTotal()} || ⬆️ ${traffic.getUplinkTotal()}"
-                ),
-                fontSize = 12.sp,
-            )
+        if (isConnected) {
+            Text(text = "⬇️ ${traffic.getDownlinkSpeed()} || ⬆️ ${traffic.getUplinkSpeed()}")
+            Text(text = "Total: ⬇️ ${traffic.getDownlinkTotal()} || ⬆️ ${traffic.getUplinkTotal()}")
         }
     }
 }
@@ -164,10 +183,10 @@ fun VpnScreen(hiddify: EasyHiddify = EasyHiddify.instance) {
 ## 💡 Supported Configuration Formats
 The library automatically detects the format of the string passed to the `startVpn` method:
 
-1. VLESS links: `vless://uuid@host:port?security=reality&pbk=...&fp=chrome#Name`
-2. Shadowsocks links: `ss://base64(method:password)@host:port#Name`
-3. Trojan links: `trojan://...`
-4. JSON Hiddify Config: Raw valid JSON for the Hiddify/sing-box core (starting with `{`).
+1. **VLESS links:** `vless://uuid@host:port?security=reality&pbk=...&fp=chrome#Name`
+2. **Shadowsocks links:** `ss://base64(method:password)@host:port#Name`
+3. **Trojan links:** `trojan://password@host:port?security=tls...`
+4. **JSON Hiddify Config:** Raw valid JSON for the Hiddify/sing-box core (starting with `{`).
 
 ## ⚖️ License & Credits
 
