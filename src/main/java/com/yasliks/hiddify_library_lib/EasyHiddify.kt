@@ -11,6 +11,7 @@ import com.yasliks.hiddify_library_lib.utils.HiddifyLoggerUtils
 import com.yasliks.hiddify_library_lib.utils.HiddifyNotificationUtils
 import com.yasliks.hiddify_library_lib.utils.HiddifyStateUtils
 import com.yasliks.hiddify_library_lib.utils.HiddifyCoreUtils
+import com.yasliks.hiddify_library_lib.utils.HiddifySettingsUtils
 import go.Seq
 
 class EasyHiddify private constructor(
@@ -24,6 +25,8 @@ class EasyHiddify private constructor(
     val generator = HiddifyConfigUtils(appContext)
     val coreUtils = HiddifyCoreUtils(appContext)
     val notifications = HiddifyNotificationUtils(appContext)
+
+    val settings = HiddifySettingsUtils(appContext)
 
     companion object {
         @Volatile

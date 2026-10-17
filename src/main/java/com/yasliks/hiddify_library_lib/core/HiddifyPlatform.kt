@@ -26,7 +26,9 @@ class HiddifyPlatform(
     private val sdk get() = EasyHiddify.instance
 
     override fun openTun(options: TunOptions): Int {
-        val mtu = if (options.mtu > 0) options.mtu else HiddifyPrefs.BASE_MTU
+        val customMtu = sdk.settings.mtu.value
+        val mtu = if (customMtu > 0) customMtu else HiddifyPrefs.BASE_MTU
+
         sdk.logger.append(2, "[PLATFORM] openTun called from core. MTU: $mtu, AutoRoute: ${options.autoRoute}")
 
         val builder = service.Builder()
@@ -43,7 +45,7 @@ class HiddifyPlatform(
         }
 
         builder.setSession(HiddifyPrefs.HIDDIFY_SMALL)
-        builder.setMtu(if (options.mtu > 0) options.mtu else HiddifyPrefs.BASE_MTU)
+        builder.setMtu(mtu)
 
         // Setting up IP addresses
         val inet4 = options.inet4Address
@@ -53,22 +55,23 @@ class HiddifyPlatform(
             sdk.logger.append(2, "[PLATFORM] IPv4 added: ${addr.address()}/${addr.prefix()}")
         }
 
-        val inet6 = options.inet6Address
-        while (inet6.hasNext()) {
-            val addr = inet6.next()
-            builder.addAddress(addr.address(), addr.prefix())
-            sdk.logger.append(2, "[PLATFORM] IPv6 added: ${addr.address()}/${addr.prefix()}")
+        val isIpv6Enabled = sdk.settings.enableIPv6.value
+        if (isIpv6Enabled) {
+            val inet6 = options.inet6Address
+            while (inet6.hasNext()) {
+                val addr = inet6.next()
+                builder.addAddress(addr.address(), addr.prefix())
+                sdk.logger.append(2, "[PLATFORM] IPv6 added: ${addr.address()}/${addr.prefix()}")
+            }
         }
 
         // DNS Configuration
-        val dns = options.dnsServerAddress
-        if (dns != null && dns.value.isNotEmpty()) {
-            builder.addDnsServer(dns.value)
-            sdk.logger.append(2, "[PLATFORM] DNS Server set: ${dns.value}")
+        val userDns = sdk.settings.dnsServer.value
+        builder.addDnsServer(if (userDns.isNotEmpty()) {
+            userDns
         } else {
-            builder.addDnsServer(HiddifyPrefs.BASE_DNS_SERVER)
-            sdk.logger.append(2, "[PLATFORM] Default DNS Server set: ${HiddifyPrefs.BASE_DNS_SERVER}")
-        }
+            HiddifyPrefs.BASE_DNS_SERVER
+        })
 
         // Routing
         if (options.autoRoute) {
@@ -82,17 +85,20 @@ class HiddifyPlatform(
                     builder.addRoute(HiddifyPrefs.BASE_ROUTE, 0)
                 }
 
-                val inet6RouteAddress = options.inet6RouteAddress
-                if (inet6RouteAddress.hasNext()) {
-                    while (inet6RouteAddress.hasNext()) {
-                        builder.addRoute(inet6RouteAddress.next().toIpPrefix())
+                // IPv6 routing only if enabled
+                if (isIpv6Enabled) {
+                    val inet6RouteAddress = options.inet6RouteAddress
+                    if (inet6RouteAddress.hasNext()) {
+                        while (inet6RouteAddress.hasNext()) {
+                            builder.addRoute(inet6RouteAddress.next().toIpPrefix())
+                        }
+                    } else {
+                        builder.addRoute(HiddifyPrefs.ZERO_ROUTE, 0)
                     }
-                } else {
-                    builder.addRoute("::", 0)
                 }
             } else {
                 builder.addRoute(HiddifyPrefs.BASE_ROUTE, 0)
-                builder.addRoute(HiddifyPrefs.ZERO_ROUTE, 0)
+                if (isIpv6Enabled) builder.addRoute(HiddifyPrefs.ZERO_ROUTE, 0)
             }
 
             sdk.logger.append(2, "[PLATFORM] isEnabledApps = $isEnabledApps, appsList == $appsList")
