@@ -28,7 +28,7 @@ val extractAar = tasks.register<Copy>("extractHiddifyCore") {
 
 android {
     namespace = "com.yasliks.easy_hiddify_lib"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26
