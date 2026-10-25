@@ -28,7 +28,7 @@ val extractAar = tasks.register<Copy>("extractHiddifyCore") {
 
 android {
     namespace = "com.yasliks.easy_hiddify_lib"
-    compileSdk = 37
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
@@ -76,7 +76,7 @@ tasks.named("preBuild") {
 
 dependencies {
     //noinspection UseTomlInstead
-    implementation("androidx.core:core-ktx:1.19.0")
+    implementation("androidx.core:core-ktx:1.15.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
 
     api(files("$extractedDir/classes.jar") {
