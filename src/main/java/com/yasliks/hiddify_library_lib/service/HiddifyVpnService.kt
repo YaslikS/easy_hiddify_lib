@@ -69,6 +69,10 @@ class HiddifyVpnService : VpnService() {
     ): Int {
         if (intent?.action == HiddifyPrefs.ACTION_STOP_VPN) {
             sdk.logger.append(2, "[SERVICE] Received STOP command action")
+
+            val notification = sdk.notifications.createNotification(serverName = "")
+            startForeground(HiddifyPrefs.NOTIFICATION_ID, notification)
+
             stopVpnInternal()
             return START_NOT_STICKY
         }
@@ -79,6 +83,7 @@ class HiddifyVpnService : VpnService() {
         val icon = intent?.getIntExtra(HiddifyPrefs.ICON_PUSH, 0) ?: 0
         val appsList = intent?.getStringArrayExtra(HiddifyPrefs.APPS_LIST)
         val isEnabledApps = intent?.getBooleanExtra(HiddifyPrefs.IS_ENABLED_APPS, false) ?: false
+        val disconnectText = intent?.getStringExtra(HiddifyPrefs.DISCONNECT_TEXT) ?: ""
 
         sdk.logger.append(2, "[SERVICE] Service started with config length: ${configContent.length}")
         if (configContent.isNotEmpty()) {
@@ -89,6 +94,7 @@ class HiddifyVpnService : VpnService() {
                 icon = icon,
                 appsList = appsList?.toList() ?: emptyList(),
                 isEnabledApps = isEnabledApps,
+                disconnectText = disconnectText,
             )
         } else {
             sdk.logger.append(4, "[SERVICE ERROR] Received empty configuration!")
@@ -104,6 +110,7 @@ class HiddifyVpnService : VpnService() {
         @DrawableRes icon: Int,
         appsList: List<String>,
         isEnabledApps: Boolean,
+        disconnectText: String,
     ) {
         currentServerId = serverId
         currentServerName = serverName
@@ -111,6 +118,7 @@ class HiddifyVpnService : VpnService() {
         val notification = sdk.notifications.createNotification(
             serverName = serverName,
             icon = icon,
+            disconnectText = disconnectText,
         )
         startForeground(HiddifyPrefs.NOTIFICATION_ID, notification)
 

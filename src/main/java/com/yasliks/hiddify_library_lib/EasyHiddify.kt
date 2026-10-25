@@ -3,7 +3,9 @@ package com.yasliks.hiddify_library_lib
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
 import com.hiddify.core.libbox.Libbox
+import com.yasliks.easy_hiddify_lib.R
 import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
 import com.yasliks.hiddify_library_lib.service.HiddifyVpnService
 import com.yasliks.hiddify_library_lib.utils.HiddifyConfigUtils
@@ -25,7 +27,6 @@ class EasyHiddify private constructor(
     val generator = HiddifyConfigUtils(appContext)
     val coreUtils = HiddifyCoreUtils(appContext)
     val notifications = HiddifyNotificationUtils(appContext)
-
     val settings = HiddifySettingsUtils(appContext)
 
     companion object {
@@ -80,6 +81,7 @@ class EasyHiddify private constructor(
         serverId: Int = 0,
         appsList: List<String> = emptyList(),
         isEnabledApps: Boolean = false,
+        disconnectText: String = appContext.getString(R.string.disconnect_push_button_text),
     ) {
         logger.append(2, "[SDK] Requesting VPN start. Apps count: ${appsList.size}, split tunneling enabled: $isEnabledApps")
 
@@ -93,8 +95,9 @@ class EasyHiddify private constructor(
             putExtra(HiddifyPrefs.EXTRA_SERVER_ID, serverId)
             putExtra(HiddifyPrefs.APPS_LIST, appsList.toTypedArray())
             putExtra(HiddifyPrefs.IS_ENABLED_APPS, isEnabledApps)
+            putExtra(HiddifyPrefs.DISCONNECT_TEXT, disconnectText)
         }
-        appContext.startService(intent)
+        ContextCompat.startForegroundService(appContext, intent)
     }
 
     /**
@@ -108,6 +111,6 @@ class EasyHiddify private constructor(
         ).apply {
             action = HiddifyPrefs.ACTION_STOP_VPN
         }
-        appContext.startService(intent)
+        ContextCompat.startForegroundService(appContext, intent)
     }
 }

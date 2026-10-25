@@ -21,6 +21,7 @@ object HiddifyPrefs {
     const val ICON_PUSH = "icon_push"
     const val APPS_LIST = "apps_list"
     const val IS_ENABLED_APPS = "is_enabled_apps"
+    const val DISCONNECT_TEXT = "disconnect_text"
 
     /** Intent actions and extras for VPN traffic broadcast. */
     const val ACTION_VPN_TRAFFIC = "com.yasliks.hiddify.VPN_TRAFFIC"

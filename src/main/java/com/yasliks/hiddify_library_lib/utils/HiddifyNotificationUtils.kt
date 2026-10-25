@@ -3,14 +3,18 @@ package com.yasliks.hiddify_library_lib.utils
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import androidx.annotation.DrawableRes
 import androidx.core.app.NotificationCompat
 import com.hiddify.core.libbox.Libbox
 import com.hiddify.core.libbox.Notification
 import com.yasliks.easy_hiddify_lib.R
 import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
+import com.yasliks.hiddify_library_lib.service.HiddifyVpnService
 
 class HiddifyNotificationUtils(
     private val context: Context,
@@ -18,6 +22,7 @@ class HiddifyNotificationUtils(
     @DrawableRes
     var currentIcon = 0
     private var currentServerName = ""
+    private var currentDisconnectText = ""
 
     @SuppressLint("ObsoleteSdkInt")
     fun createNotification(
@@ -28,6 +33,7 @@ class HiddifyNotificationUtils(
         uplinkSpeed: Long = 0L,
         downlinkTotal: Long = 0L,
         uplinkTotal: Long = 0L,
+        disconnectText: String? = null,
     ): android.app.Notification {
         if (icon != 0) {
             currentIcon = icon
@@ -35,10 +41,11 @@ class HiddifyNotificationUtils(
         if (!serverName.isNullOrEmpty()) {
             currentServerName = serverName
         }
+        if (!disconnectText.isNullOrEmpty()) {
+            currentDisconnectText = disconnectText
+        }
 
-        val manager = context.getSystemService(
-            /* name = */ Context.NOTIFICATION_SERVICE,
-        ) as NotificationManager
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -64,24 +71,44 @@ class HiddifyNotificationUtils(
         val totalLine = context.getString(R.string.total,"⬇️ $totalDownStr || ⬆️ $totalUpStr")
         val fullText = "$speedLine\n$totalLine"
 
-        val iconToSet = if (icon != 0) {
-            icon
-        } else {
-            if (currentIcon != 0) {
-                currentIcon
+        val iconToSet = if (icon != 0) icon else if (currentIcon != 0) currentIcon else R.drawable.outline_vpn_lock_24
+
+        val stopIntent = Intent(context, HiddifyVpnService::class.java).apply {
+            action = HiddifyPrefs.ACTION_STOP_VPN
+        }
+        val stopPendingIntent = PendingIntent.getService(
+            context,
+            0,
+            stopIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
+        val extras = Bundle()
+        if (Build.VERSION.SDK_INT >= 36) {
+            extras.putBoolean("android.requestPromotedOngoing", true)
+
+            val chipText = if (title.length > 8) {
+                "${title.take(8).trim()}…"
             } else {
-                R.drawable.outline_vpn_lock_24
+                title
             }
+
+            extras.putCharSequence("android.shortCriticalText", chipText)
         }
 
         return NotificationCompat.Builder(context, HiddifyPrefs.CHANNEL_ID)
             .setSmallIcon(iconToSet)
             .setContentTitle(title)
             .setContentText(speedLine)
+            .setColor(android.graphics.Color.parseColor("#4CAF50"))
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setTicker(title)
             .setStyle(NotificationCompat.BigTextStyle().bigText(fullText))
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
+            .addExtras(extras)
+            .addAction(0, currentDisconnectText, stopPendingIntent)
             .build()
     }
 
@@ -93,7 +120,6 @@ class HiddifyNotificationUtils(
     ) {
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notification = createNotification(
-            serverName = currentServerName,
             downlinkSpeed = downlinkSpeed,
             uplinkSpeed = uplinkSpeed,
             downlinkTotal = downlinkTotal,

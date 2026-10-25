@@ -13,6 +13,6 @@
     <string name="invalid_ss_userinfo_format">Invalid SS userinfo format</string>
     <string name="speed">Speed %s</string>
     <string name="total">Total %s</string>
-
+    <string name="disconnect_push_button_text">Disconnect</string>
 
 </resources>
