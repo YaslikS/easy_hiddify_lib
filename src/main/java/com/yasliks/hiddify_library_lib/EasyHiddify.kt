@@ -16,9 +16,7 @@ import com.yasliks.hiddify_library_lib.utils.HiddifyCoreUtils
 import com.yasliks.hiddify_library_lib.utils.HiddifySettingsUtils
 import go.Seq
 
-class EasyHiddify private constructor(
-    context: Context,
-) {
+class EasyHiddify private constructor(context: Context) {
 
     private val appContext = context.applicationContext
 

@@ -25,6 +25,13 @@ class HiddifyPlatform(
 
     private val sdk get() = EasyHiddify.instance
 
+    private class StringArrayIterator(private val items: List<String>) : StringIterator {
+        private var index = 0
+        override fun hasNext(): Boolean = index < items.size
+        override fun len(): Int = items.size
+        override fun next(): String = items[index++]
+    }
+
     override fun openTun(options: TunOptions): Int {
         val customMtu = sdk.settings.mtu.value
         val mtu = if (customMtu > 0) customMtu else HiddifyPrefs.BASE_MTU
@@ -39,7 +46,6 @@ class HiddifyPlatform(
                 sdk.logger.append(2, "[PLATFORM] Disallowed self package from VPN: ${service.packageName}")
             } catch (e: Exception) {
                 val err = service.getString(R.string.failed_to_disallow, e.message ?: "")
-                Log.e(HiddifyPrefs.HIDDIFY, err)
                 sdk.logger.append(3, "[PLATFORM WARNING] $err")
             }
         }
@@ -67,13 +73,25 @@ class HiddifyPlatform(
 
         // DNS Configuration
         val userDns = sdk.settings.dnsServer.value
-        builder.addDnsServer(if (userDns.isNotEmpty()) {
-            userDns
-        } else {
-            HiddifyPrefs.BASE_DNS_SERVER
-        })
+        val defaultDns = if (userDns.isNotEmpty()) userDns else HiddifyPrefs.BASE_DNS_SERVER
 
-        // Routing
+        val rawDns = try {
+            val dnsIter = options.dnsServerAddress
+            if (dnsIter != null && dnsIter.hasNext()) dnsIter.next() else null
+        } catch (_: Exception) { null }
+
+        val parsedDnsAddress = rawDns
+            ?.replace("tcp://", "")
+            ?.replace("udp://", "")
+            ?.replace("https://", "")
+            ?.replace("http://", "")
+            ?.substringBefore("/")
+            ?.substringBefore(":")
+            ?.takeIf { it.matches(Regex("""^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$""")) }
+            ?: defaultDns
+
+        builder.addDnsServer(parsedDnsAddress)
+
         if (options.autoRoute) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val inet4RouteAddress = options.inet4RouteAddress
@@ -102,10 +120,7 @@ class HiddifyPlatform(
             }
 
             sdk.logger.append(2, "[PLATFORM] isEnabledApps = $isEnabledApps, appsList == $appsList")
-            builder.enabledApps(
-                isEnabledApps = isEnabledApps,
-                listApps = appsList,
-            )
+            builder.enabledApps(isEnabledApps = isEnabledApps, listApps = appsList)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -138,29 +153,19 @@ class HiddifyPlatform(
         }
         sdk.logger.append(2, "[PLATFORM] Configuring split tunneling for ${listApps.size} apps...")
 
-        try {
-            val addedApps = HashSet<String>()
-            for (app in listApps) {
-                if (app.isBlank() || app in addedApps) continue
-                if (app == service.packageName) continue
-
-                if (appIsExists(app)) {
-                    try {
-                        this.addAllowedApplication(app)
-                        addedApps.add(app)
-                    } catch (e: Exception) {
-                        // The package may be deleted in the process or may not be suitable.
-                        sdk.logger.append(3, "[PLATFORM WARNING] Failed to add app $app: ${e.message}")
-                    }
-                } else {
-                    sdk.logger.append(3, "[PLATFORM WARNING] Package not installed: $app")
+        val addedApps = HashSet<String>()
+        for (app in listApps) {
+            if (app.isBlank() || app in addedApps || app == service.packageName) continue
+            if (appIsExists(app)) {
+                try {
+                    this.addAllowedApplication(app)
+                    addedApps.add(app)
+                } catch (e: Exception) {
+                    // The package may be deleted in the process or may not be suitable.
+                    sdk.logger.append(3, "[PLATFORM WARNING] Failed to add app $app: ${e.message}")
                 }
             }
-            sdk.logger.append(2, "[PLATFORM] Total allowed apps added: ${addedApps.size}")
-        } catch (e: Exception) {
-            sdk.logger.append(4, "[PLATFORM ERROR] Exception in enabledApps: ${e.message}")
         }
-
         return this
     }
 
@@ -171,43 +176,24 @@ class HiddifyPlatform(
      * @return true - if the application is installed, false - in all other cases.
      */
     private fun appIsExists(packageName: String): Boolean {
-        try {
-            val ctx = service
-            ctx.packageManager.getPackageInfo(packageName, 0)
+        return try {
+            service.packageManager.getPackageInfo(packageName, 0)
+            true
         } catch (e: PackageManager.NameNotFoundException) {
             // The app isn't installed.
             return false
         }
-        return true
     }
 
-    /**
-     * Processing notifications from the core
-     *
-     * @param notification notification
-     */
     override fun sendNotification(notification: Notification) {
         sdk.state.updateNotification(notification)
-
-        val systemNotification = sdk.notifications.createNotification(
-            serverName = null,
-            notification = notification,
-        )
-
-        val manager = service.getSystemService(
-            /* name = */ Context.NOTIFICATION_SERVICE,
-        ) as NotificationManager
-        manager.notify(
-            /* id = */ HiddifyPrefs.NOTIFICATION_ID,
-            /* notification = */ systemNotification,
-        )
+        val systemNotification = sdk.notifications.createNotification(serverName = null, notification = notification)
+        val manager = service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify(HiddifyPrefs.NOTIFICATION_ID, systemNotification)
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun RoutePrefix.toIpPrefix() = IpPrefix(
-        /* address = */ InetAddress.getByName(address()),
-        /* prefixLength = */ prefix(),
-    )
+    private fun RoutePrefix.toIpPrefix() = IpPrefix(InetAddress.getByName(address()), prefix())
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun findConnectionOwner(
@@ -218,9 +204,7 @@ class HiddifyPlatform(
         destinationPort: Int,
     ): ConnectionOwner {
         return try {
-            val manager = service.getSystemService(
-                /* name = */ Context.CONNECTIVITY_SERVICE,
-            ) as ConnectivityManager
+            val manager = service.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val uid = manager.getConnectionOwnerUid(
                 /* protocol = */ ipProtocol,
                 /* local = */ InetSocketAddress(sourceAddress, sourcePort),
@@ -230,11 +214,9 @@ class HiddifyPlatform(
             val owner = ConnectionOwner()
             owner.userId = uid
             if (uid != Process.INVALID_UID) {
-                val packageName = service.packageManager.getPackagesForUid(
-                    /* uid = */ uid,
-                )?.firstOrNull() ?: ""
-                owner.androidPackageName = packageName
-                owner.userName = packageName
+                val packages = service.packageManager.getPackagesForUid(uid)?.toList().orEmpty()
+                owner.userName = packages.firstOrNull() ?: ""
+                owner.setAndroidPackageNames(StringArrayIterator(packages))
             }
             owner
         } catch (e: Exception) {
@@ -243,31 +225,32 @@ class HiddifyPlatform(
     }
 
     override fun readWIFIState(): WIFIState = WIFIState("", "")
-
     override fun clearDNSCache() {}
-
     override fun getInterfaces(): NetworkInterfaceIterator? = null
-
     override fun includeAllNetworks(): Boolean = true
-
     override fun localDNSTransport(): LocalDNSTransport? = null
 
-    override fun startDefaultInterfaceMonitor(listener: InterfaceUpdateListener) {}
-
-    override fun closeDefaultInterfaceMonitor(listener: InterfaceUpdateListener) {}
-
+    override fun cancelNotification(identifier: String?, typeID: Int) {}
+    override fun startDefaultInterfaceMonitor(listener: InterfaceUpdateListener?) {}
+    override fun closeDefaultInterfaceMonitor(listener: InterfaceUpdateListener?) {}
+    override fun startNeighborMonitor(listener: NeighborUpdateListener?) {}
+    override fun closeNeighborMonitor(listener: NeighborUpdateListener?) {}
     override fun systemCertificates(): StringIterator? = null
-
     override fun underNetworkExtension(): Boolean = false
-
     override fun usePlatformAutoDetectInterfaceControl(): Boolean = true
-
-    override fun useProcFS(): Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
-
     override fun autoDetectInterfaceControl(fd: Int) {
-        val protected = service.protect(fd)
-        if (!protected) {
-            Log.i("HiddifyPlatform", "Failed to protect socket fd: $fd")
-        }
+        if (!service.protect(fd)) Log.i("HiddifyPlatform", "Failed to protect socket fd: $fd")
     }
+    override fun checkPlatformShell() {}
+    override fun createAutoRedirect(options: ByteArray?, handler: AutoRedirectHandler?): AutoRedirectSession = throw Exception("AutoRedirect is not supported")
+    override fun createBridge(options: BridgeOptions?): BridgeSession = throw Exception("Bridge is not supported")
+    override fun lookupSFTPServer(): String = throw Exception("SFTP server is not supported")
+    override fun lookupUser(username: String?): PlatformUser = throw Exception("lookupUser is not supported")
+    override fun openShellSession(user: PlatformUser?, command: String?, environ: StringIterator?, term: String?, rows: Int, cols: Int): ShellSession = throw Exception("ShellSession is not supported")
+    override fun readSystemSSHHostKey(): String = throw Exception("SSH host key is not supported")
+    override fun registerMyInterface(name: String?) {}
+    override fun tailscaleHostname(): String = "Android"
+    override fun usePlatformAutoRedirect(): Boolean = false
+    override fun usePlatformBridge(): Boolean = false
+    override fun usePlatformShell(): Boolean = false
 }

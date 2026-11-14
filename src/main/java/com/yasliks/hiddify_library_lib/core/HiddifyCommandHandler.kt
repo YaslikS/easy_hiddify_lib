@@ -1,18 +1,20 @@
 package com.yasliks.hiddify_library_lib.core
 
 import android.content.Context
-import android.util.Log
 import com.hiddify.core.libbox.CommandServerHandler
 import com.hiddify.core.libbox.SystemProxyStatus
 import com.yasliks.easy_hiddify_lib.R
 import com.yasliks.hiddify_library_lib.EasyHiddify
-import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
 
 class HiddifyCommandHandler(
     private val context: Context,
 ) : CommandServerHandler {
 
     private val sdk get() = EasyHiddify.instance
+
+    override fun connectSSHAgent(): Int {
+        throw Exception("SSH agent is not supported")
+    }
 
     override fun getSystemProxyStatus(): SystemProxyStatus {
         return SystemProxyStatus().apply {
@@ -35,15 +37,15 @@ class HiddifyCommandHandler(
         )
     }
 
-    override fun setSystemProxyEnabled(enabled: Boolean) {
+    override fun setSystemProxyEnabled(enabled: Boolean) {}
 
-    }
+    override fun triggerNativeCrash() {}
 
-    override fun writeDebugMessage(message: String) {
-        Log.e(HiddifyPrefs.CORE, message)
+    override fun writeDebugMessage(message: String?) {
+        val msg = message ?: ""
         sdk.logger.append(
             level = 1,
-            message = context.getString(R.string.core_debug, message),
+            message = context.getString(R.string.core_debug, msg),
         )
     }
 }

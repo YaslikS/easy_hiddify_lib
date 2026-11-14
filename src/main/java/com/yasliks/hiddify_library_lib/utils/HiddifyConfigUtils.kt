@@ -13,14 +13,6 @@ import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs.VLESS_START_CONFIG
 import org.json.JSONArray
 import org.json.JSONObject
 
-/**
- * Configuration parsing utility.
- *
- * This class is responsible for converting standard VPN URIs (`vless://`, `trojan://`, `ss://`)
- * or raw JSON files into a format that the Sing-box core understands.
- * It injects user-defined settings dynamically (e.g., DNS, Multiplexing, AdBlock, Local Proxy)
- * during the configuration build process.
- */
 class HiddifyConfigUtils(private val context: Context) {
 
     private val sdk get() = EasyHiddify.instance
@@ -65,13 +57,17 @@ class HiddifyConfigUtils(private val context: Context) {
      * Generates a Sing-box JSON configuration for VLESS protocol.
      */
     private fun generateVless(uri: Uri): String {
-        val uuid = uri.userInfo
+        val uuid = uri.userInfo ?: ""
         val host = uri.host ?: ""
-        val port = uri.port
+        val port = if (uri.port > 0) uri.port else 443
         val security = uri.getQueryParameter("security") ?: "none"
         val sni = uri.getQueryParameter("sni") ?: ""
         val fp = uri.getQueryParameter("fp") ?: "chrome"
         val flow = uri.getQueryParameter("flow") ?: ""
+        val type = uri.getQueryParameter("type") ?: uri.getQueryParameter("transport") ?: "tcp"
+        val path = uri.getQueryParameter("path") ?: ""
+        val hostHeader = uri.getQueryParameter("host") ?: uri.getQueryParameter("authority") ?: ""
+        val serviceName = uri.getQueryParameter("serviceName") ?: uri.getQueryParameter("service_name") ?: ""
         val pbk = uri.getQueryParameter("pbk") ?: ""
         val sid = uri.getQueryParameter("sid") ?: ""
 
@@ -87,7 +83,11 @@ class HiddifyConfigUtils(private val context: Context) {
             put(HiddifyPrefs.SERVER, host)
             put("server_port", port)
             put("uuid", uuid)
-            if (flow.isNotEmpty()) put("flow", flow)
+            put("packet_encoding", "xudp")
+
+            if (flow.isNotEmpty() && (type == "tcp" || type.isEmpty())) {
+                put("flow", flow)
+            }
 
             if (sdk.settings.enableMux.value) {
                 put("multiplex", JSONObject().apply {
@@ -98,27 +98,54 @@ class HiddifyConfigUtils(private val context: Context) {
             }
 
             if (security == "reality" || security == "tls" || security == "xtls") {
-                val tls = JSONObject()
-                tls.put("enabled", true)
-                tls.put("server_name", sni)
-                tls.put("utls", JSONObject().apply {
+                val tls = JSONObject().apply {
                     put("enabled", true)
-                    put("fingerprint", fp)
-                })
-                if (security == "reality") {
-                    tls.put("reality", JSONObject().apply {
+                    val serverName = if (sni.isNotEmpty()) sni else host
+                    put("server_name", serverName)
+
+                    put("utls", JSONObject().apply {
                         put("enabled", true)
-                        put("public_key", pbk)
-                        put("short_id", sid)
+                        put("fingerprint", if (fp.isNotEmpty()) fp else "chrome")
                     })
+
+                    if (security == "reality") {
+                        put("reality", JSONObject().apply {
+                            put("enabled", true)
+                            put("public_key", pbk)
+                            put("short_id", sid)
+                        })
+                    }
                 }
                 put("tls", tls)
+            }
+
+            when (type.lowercase()) {
+                "grpc" -> {
+                    put("transport", JSONObject().apply {
+                        put("type", "grpc")
+                        if (serviceName.isNotEmpty()) put("service_name", serviceName)
+                    })
+                }
+                "ws" -> {
+                    put("transport", JSONObject().apply {
+                        put("type", "ws")
+                        if (path.isNotEmpty()) put("path", path)
+                        if (hostHeader.isNotEmpty()) put("headers", JSONObject().put("Host", hostHeader))
+                    })
+                }
+                "httpupgrade" -> {
+                    put("transport", JSONObject().apply {
+                        put("type", "httpupgrade")
+                        if (path.isNotEmpty()) put("path", path)
+                        if (hostHeader.isNotEmpty()) put("host", hostHeader)
+                    })
+                }
             }
         }
 
         buildOutbounds(outbounds, proxy)
         root.put("outbounds", outbounds)
-        root.put("route", buildRouteObject())
+        root.put("route", buildRouteObject(host))
 
         return root.toString(2)
     }
@@ -129,7 +156,7 @@ class HiddifyConfigUtils(private val context: Context) {
     private fun generateTrojan(uri: Uri): String {
         val password = uri.userInfo ?: ""
         val host = uri.host ?: ""
-        val port = uri.port
+        val port = if (uri.port > 0) uri.port else 443
         val security = uri.getQueryParameter("security") ?: "tls"
         val sni = uri.getQueryParameter("sni") ?: ""
         val fp = uri.getQueryParameter("fp") ?: "chrome"
@@ -204,7 +231,7 @@ class HiddifyConfigUtils(private val context: Context) {
 
         buildOutbounds(outbounds, proxy)
         root.put("outbounds", outbounds)
-        root.put("route", buildRouteObject())
+        root.put("route", buildRouteObject(host))
 
         return root.toString(2)
     }
@@ -252,7 +279,7 @@ class HiddifyConfigUtils(private val context: Context) {
 
         buildOutbounds(outbounds, proxy)
         root.put("outbounds", outbounds)
-        root.put("route", buildRouteObject())
+        root.put("route", buildRouteObject(host))
 
         return root.toString(2)
     }
@@ -274,12 +301,26 @@ class HiddifyConfigUtils(private val context: Context) {
      */
     private fun buildDnsObject(): JSONObject {
         val dnsObject = JSONObject().apply {
-            put("servers", JSONArray().put(
-                JSONObject().apply {
+            put("servers", JSONArray().apply {
+                put(JSONObject().apply {
+                    put("type", "https")
                     put("tag", "dns-remote")
-                    put("address", sdk.settings.dnsServer.value)
-                }
-            ))
+                    put("server", sdk.settings.dnsServer.value)
+                    put("detour", "proxy")
+                })
+                put(JSONObject().apply {
+                    put("type", "https")
+                    put("tag", "dns-backup")
+                    put("server", "1.1.1.1")
+                    put("detour", "proxy")
+                })
+                put(JSONObject().apply {
+                    put("type", "udp")
+                    put("tag", "dns-direct")
+                    put("server", sdk.settings.dnsServer.value)
+                })
+            })
+            put("strategy", "ipv4_only")
 
             if (sdk.settings.enableFakeIp.value) {
                 put("fakeip", JSONObject().apply {
@@ -304,10 +345,10 @@ class HiddifyConfigUtils(private val context: Context) {
             put("type", "tun")
             put("tag", "tun-in")
             put("address", JSONArray().put("172.19.0.1/30"))
+            put("mtu", 1400)
             put("auto_route", true)
             put("strict_route", sdk.settings.strictRoute.value)
             put("stack", "gvisor")
-            put("sniff", true)
         })
 
         if (sdk.settings.enableLocalProxy.value) {
@@ -341,8 +382,32 @@ class HiddifyConfigUtils(private val context: Context) {
      * Builds the routing rules block.
      * Integrates AdBlock categories, custom direct domain rules, and Bypass LAN rules.
      */
-    private fun buildRouteObject(): JSONObject {
+    private fun buildRouteObject(serverHost: String): JSONObject {
         val routeRules = JSONArray()
+
+        routeRules.put(JSONObject().apply {
+            put("action", "sniff")
+        })
+        routeRules.put(JSONObject().apply {
+            put("protocol", "dns")
+            put("action", "hijack-dns")
+        })
+
+        // Reset QUIC
+        routeRules.put(JSONObject().apply {
+            put("network", "udp")
+            put("port", JSONArray().put(443))
+            put("action", "reject")
+            put("method", "drop")
+        })
+
+        // Protection from the routing loop
+        if (serverHost.matches(Regex("""^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"""))) {
+            routeRules.put(JSONObject().apply {
+                put("ip_cidr", JSONArray().put("$serverHost/32"))
+                put("outbound", "direct")
+            })
+        }
 
         if (sdk.settings.enableAdBlock.value) {
             routeRules.put(JSONObject().apply {
@@ -386,6 +451,7 @@ class HiddifyConfigUtils(private val context: Context) {
         return JSONObject().apply {
             put("rules", routeRules)
             put("final", "proxy")
+            put("default_domain_resolver", "dns-direct")
         }
     }
 }

@@ -63,9 +63,10 @@ class HiddifyClientHandler(
         sdk.state.updateGroups(groups)
     }
 
+    override fun writeOutbounds(message: OutboundGroupItemIterator?) {}
     override fun writeConnectionEvents(events: ConnectionEvents) {}
-    override fun initializeClashMode(modeList: StringIterator, currentMode: String) {}
-    override fun updateClashMode(newMode: String) {}
+    override fun initializeClashMode(modeList: StringIterator?, currentMode: String?) {}
+    override fun updateClashMode(newMode: String?) {}
     override fun setDefaultLogLevel(level: Int) {}
 
     override fun clearLogs() {
