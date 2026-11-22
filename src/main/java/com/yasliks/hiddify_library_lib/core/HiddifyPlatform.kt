@@ -5,9 +5,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.IpPrefix
+import android.net.Network
 import android.net.VpnService
 import android.os.Build
 import android.os.Process
+import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.hiddify.core.libbox.*
@@ -17,13 +19,45 @@ import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
 import java.net.InetAddress
 import java.net.InetSocketAddress
 
-class HiddifyPlatform(
-    private val service: VpnService,
-    private val isEnabledApps: Boolean = false,
-    private val appsList: List<String> = emptyList(),
+class HiddifyPlatform internal constructor(
+    private val context: Context,
+    private val service: VpnService? = null,
+    isEnabledApps: Boolean = false,
+    appsList: List<String> = emptyList(),
+    private val probeNetwork: Network? = null,
 ) : PlatformInterface {
+    constructor(
+        service: VpnService,
+        isEnabledApps: Boolean = false,
+        appsList: List<String> = emptyList(),
+    ) : this(
+        context = service,
+        service = service,
+        isEnabledApps = isEnabledApps,
+        appsList = appsList,
+    )
 
     private val sdk get() = EasyHiddify.instance
+    @Volatile
+    private var appSelection = AppSelection(
+        isEnabled = isEnabledApps,
+        apps = appsList,
+    )
+
+    private data class AppSelection(
+        val isEnabled: Boolean,
+        val apps: List<String>,
+    )
+
+    internal fun updateApps(
+        isEnabled: Boolean,
+        apps: List<String>,
+    ) {
+        appSelection = AppSelection(
+            isEnabled = isEnabled,
+            apps = apps,
+        )
+    }
 
     private class StringArrayIterator(private val items: List<String>) : StringIterator {
         private var index = 0
@@ -33,6 +67,8 @@ class HiddifyPlatform(
     }
 
     override fun openTun(options: TunOptions): Int {
+        val service = checkNotNull(service) { "TUN is unavailable for URL tests" }
+        val (isEnabledApps, appsList) = appSelection
         val customMtu = sdk.settings.mtu.value
         val mtu = if (customMtu > 0) customMtu else HiddifyPrefs.BASE_MTU
 
@@ -155,7 +191,7 @@ class HiddifyPlatform(
 
         val addedApps = HashSet<String>()
         for (app in listApps) {
-            if (app.isBlank() || app in addedApps || app == service.packageName) continue
+            if (app.isBlank() || app in addedApps || app == context.packageName) continue
             if (appIsExists(app)) {
                 try {
                     this.addAllowedApplication(app)
@@ -177,7 +213,7 @@ class HiddifyPlatform(
      */
     private fun appIsExists(packageName: String): Boolean {
         return try {
-            service.packageManager.getPackageInfo(packageName, 0)
+            context.packageManager.getPackageInfo(packageName, 0)
             true
         } catch (e: PackageManager.NameNotFoundException) {
             // The app isn't installed.
@@ -186,6 +222,7 @@ class HiddifyPlatform(
     }
 
     override fun sendNotification(notification: Notification) {
+        if (service == null) return
         sdk.state.updateNotification(notification)
         val systemNotification = sdk.notifications.createNotification(serverName = null, notification = notification)
         val manager = service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -204,7 +241,7 @@ class HiddifyPlatform(
         destinationPort: Int,
     ): ConnectionOwner {
         return try {
-            val manager = service.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val uid = manager.getConnectionOwnerUid(
                 /* protocol = */ ipProtocol,
                 /* local = */ InetSocketAddress(sourceAddress, sourcePort),
@@ -214,7 +251,7 @@ class HiddifyPlatform(
             val owner = ConnectionOwner()
             owner.userId = uid
             if (uid != Process.INVALID_UID) {
-                val packages = service.packageManager.getPackagesForUid(uid)?.toList().orEmpty()
+                val packages = context.packageManager.getPackagesForUid(uid)?.toList().orEmpty()
                 owner.userName = packages.firstOrNull() ?: ""
                 owner.setAndroidPackageNames(StringArrayIterator(packages))
             }
@@ -239,7 +276,11 @@ class HiddifyPlatform(
     override fun underNetworkExtension(): Boolean = false
     override fun usePlatformAutoDetectInterfaceControl(): Boolean = true
     override fun autoDetectInterfaceControl(fd: Int) {
-        if (!service.protect(fd)) Log.i("HiddifyPlatform", "Failed to protect socket fd: $fd")
+        if (probeNetwork != null) {
+            ParcelFileDescriptor.fromFd(fd).use { probeNetwork.bindSocket(it.fileDescriptor) }
+        } else if (service?.protect(fd) == false) {
+            Log.i("HiddifyPlatform", "Failed to protect socket fd: $fd")
+        }
     }
     override fun checkPlatformShell() {}
     override fun createAutoRedirect(options: ByteArray?, handler: AutoRedirectHandler?): AutoRedirectSession = throw Exception("AutoRedirect is not supported")

@@ -14,6 +14,7 @@ import com.yasliks.hiddify_library_lib.utils.HiddifyNotificationUtils
 import com.yasliks.hiddify_library_lib.utils.HiddifyStateUtils
 import com.yasliks.hiddify_library_lib.utils.HiddifyCoreUtils
 import com.yasliks.hiddify_library_lib.utils.HiddifySettingsUtils
+import com.yasliks.hiddify_library_lib.utils.HiddifyLatencyTest
 import go.Seq
 
 class EasyHiddify private constructor(context: Context) {
@@ -23,6 +24,7 @@ class EasyHiddify private constructor(context: Context) {
     val state = HiddifyStateUtils(appContext)
     val logger = HiddifyLoggerUtils(appContext)
     val generator = HiddifyConfigUtils(appContext)
+    val latency = HiddifyLatencyTest(context = appContext, generator = generator)
     val coreUtils = HiddifyCoreUtils(appContext)
     val notifications = HiddifyNotificationUtils(appContext)
     val settings = HiddifySettingsUtils(appContext)
