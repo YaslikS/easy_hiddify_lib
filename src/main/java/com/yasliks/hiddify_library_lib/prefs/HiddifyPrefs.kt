@@ -14,6 +14,8 @@ object HiddifyPrefs {
     const val VLESS_START_CONFIG = "vless"
     const val SHADOWSOCKS_START_CONFIG = "ss"
     const val TROJAN_START_CONFIG = "trojan"
+    const val HYSTERIA2_START_CONFIG = "hysteria2"
+    const val HY2_START_CONFIG = "hy2"
 
     /** Intent extras for configuring the VPN service. */
     const val CONFIG_CONTENT = "config_content"

@@ -7,6 +7,8 @@ import androidx.core.net.toUri
 import com.yasliks.easy_hiddify_lib.R
 import com.yasliks.hiddify_library_lib.EasyHiddify
 import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs.HY2_START_CONFIG
+import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs.HYSTERIA2_START_CONFIG
 import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs.SHADOWSOCKS_START_CONFIG
 import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs.TROJAN_START_CONFIG
 import com.yasliks.hiddify_library_lib.prefs.HiddifyPrefs.VLESS_START_CONFIG
@@ -36,10 +38,11 @@ class HiddifyConfigUtils(private val context: Context) {
         try {
             val uri = trimmed.toUri()
             sdk.logger.append(2, "[CONFIG] Protocol scheme detected: ${uri.scheme}")
-            return when (uri.scheme) {
+            return when (uri.scheme?.lowercase()) {
                 VLESS_START_CONFIG -> generateVless(uri)
                 SHADOWSOCKS_START_CONFIG -> generateShadowsocks(uri)
                 TROJAN_START_CONFIG -> generateTrojan(uri)
+                HYSTERIA2_START_CONFIG, HY2_START_CONFIG -> generateHysteria2(uri)
                 else -> {
                     val err = context.getString(R.string.unsupported_protocol, uri.scheme)
                     sdk.logger.append(4, "[CONFIG ERROR] $err")
@@ -67,7 +70,8 @@ class HiddifyConfigUtils(private val context: Context) {
         val type = uri.getQueryParameter("type") ?: uri.getQueryParameter("transport") ?: "tcp"
         val path = uri.getQueryParameter("path") ?: ""
         val hostHeader = uri.getQueryParameter("host") ?: uri.getQueryParameter("authority") ?: ""
-        val serviceName = uri.getQueryParameter("serviceName") ?: uri.getQueryParameter("service_name") ?: ""
+        val serviceName =
+            uri.getQueryParameter("serviceName") ?: uri.getQueryParameter("service_name") ?: ""
         val pbk = uri.getQueryParameter("pbk") ?: ""
         val sid = uri.getQueryParameter("sid") ?: ""
 
@@ -126,13 +130,18 @@ class HiddifyConfigUtils(private val context: Context) {
                         if (serviceName.isNotEmpty()) put("service_name", serviceName)
                     })
                 }
+
                 "ws" -> {
                     put("transport", JSONObject().apply {
                         put("type", "ws")
                         if (path.isNotEmpty()) put("path", path)
-                        if (hostHeader.isNotEmpty()) put("headers", JSONObject().put("Host", hostHeader))
+                        if (hostHeader.isNotEmpty()) put(
+                            "headers",
+                            JSONObject().put("Host", hostHeader)
+                        )
                     })
                 }
+
                 "httpupgrade" -> {
                     put("transport", JSONObject().apply {
                         put("type", "httpupgrade")
@@ -213,7 +222,10 @@ class HiddifyConfigUtils(private val context: Context) {
                 put("transport", JSONObject().apply {
                     put("type", "ws")
                     if (path.isNotEmpty()) put("path", path)
-                    if (hostHeader.isNotEmpty()) put("headers", JSONObject().put("Host", hostHeader))
+                    if (hostHeader.isNotEmpty()) put(
+                        "headers",
+                        JSONObject().put("Host", hostHeader)
+                    )
                 })
             } else if (type == "grpc") {
                 put("transport", JSONObject().apply {
@@ -282,6 +294,56 @@ class HiddifyConfigUtils(private val context: Context) {
         root.put("route", buildRouteObject(host))
 
         return root.toString(2)
+    }
+
+    private fun generateHysteria2(uri: Uri): String {
+        require(
+            uri.getQueryParameter("pinSHA256").isNullOrBlank()
+        ) { "Hysteria2: pinSHA256 is not supported" }
+        require(
+            uri.getQueryParameter("mport").isNullOrBlank()
+        ) { "Hysteria2: mport is not supported" }
+        val host = requireNotNull(
+            uri.host?.removeSurrounding(prefix = "[", suffix = "]")?.takeIf { it.isNotBlank() },
+        )
+        val password = requireNotNull(uri.userInfo?.takeIf { it.isNotBlank() })
+        val port = uri.port.takeIf { it != -1 } ?: 443
+        require(port in 1..65535)
+
+        val proxy = JSONObject().apply {
+            put("type", HYSTERIA2_START_CONFIG)
+            put("tag", "proxy")
+            put("server", host)
+            put("server_port", port)
+            put("password", password)
+            put("tls", JSONObject().apply {
+                put("enabled", true)
+                put("server_name", uri.getQueryParameter("sni")?.takeIf { it.isNotBlank() } ?: host)
+                put("insecure", uri.getQueryParameter("insecure") in setOf("1", "true"))
+            })
+            uri.getQueryParameter("obfs")?.takeIf { it.isNotBlank() }?.let { type ->
+                put("obfs", JSONObject().apply {
+                    put("type", type)
+                    put(
+                        "password",
+                        requireNotNull(
+                            uri.getQueryParameter("obfs-password")?.takeIf { it.isNotBlank() })
+                    )
+                })
+            }
+        }
+        val outbounds = JSONArray()
+        buildOutbounds(
+            outbounds = outbounds,
+            proxy = proxy,
+        )
+        return JSONObject().apply {
+            put("log", buildLogObject())
+            put("dns", buildDnsObject())
+            put("inbounds", buildInboundsObject())
+            put("outbounds", outbounds)
+            put("route", buildRouteObject(serverHost = host))
+        }.toString(2)
     }
 
     /**
